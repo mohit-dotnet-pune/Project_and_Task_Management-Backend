@@ -10,8 +10,10 @@ namespace Project___Task_Management_Backend.Models
 
         [ForeignKey("task")]
         public int taskId { get; set; }
+
         [ForeignKey("file")]
         public int? fileId { get; set; }
+
         [ForeignKey("user")]
         public int userId { get; set; }
 
