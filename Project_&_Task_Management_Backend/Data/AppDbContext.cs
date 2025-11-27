@@ -111,7 +111,19 @@ namespace Project___Task_Management_Backend.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Project>()
+                .HasOne(c => c.file)
+                .WithOne()
+                .HasForeignKey<Project>(c => c.fileId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // Configure relationships
+            modelBuilder.Entity<ProjectTask>()
+                .HasOne(c => c.file)
+                .WithOne()
+                .HasForeignKey<ProjectTask>(c => c.fileId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // ProjectTask -> Project
             modelBuilder.Entity<ProjectTask>()
                 .HasOne(pt => pt.project)
@@ -127,25 +139,25 @@ namespace Project___Task_Management_Backend.Data
                 .OnDelete(DeleteBehavior.SetNull);
 
             // Comment -> File (one-to-one)
-            modelBuilder.Entity<Comment>()
+            modelBuilder.Entity<Comment>() //✅
                 .HasOne(c => c.file)
                 .WithOne()
                 .HasForeignKey<Comment>(c => c.fileId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             // Comment -> User
-            modelBuilder.Entity<Comment>()
+            modelBuilder.Entity<Comment>() //✅
                 .HasOne(c => c.user)
                 .WithMany(u => u.comments)
                 .HasForeignKey(c => c.userId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Comment -> Task
-            modelBuilder.Entity<Comment>()
+            modelBuilder.Entity<Comment>() //✅
                 .HasOne(c => c.task)
                 .WithMany(t => t.comments)
                 .HasForeignKey(c => c.taskId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // UserProject -> User
             modelBuilder.Entity<UserProject>()
@@ -167,18 +179,6 @@ namespace Project___Task_Management_Backend.Data
                 .WithMany(u => u.activities)
                 .HasForeignKey(a => a.userId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ProjectTask>()
-                 .HasOne(c => c.file)
-                 .WithOne()
-                 .HasForeignKey<ProjectTask>(c => c.fileId)
-                 .OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<Project>()
-                 .HasOne(c => c.file)
-                 .WithOne()
-                 .HasForeignKey<Project>(c => c.fileId)
-                 .OnDelete(DeleteBehavior.SetNull);
 
             // Seed data
             SeedData(modelBuilder);
