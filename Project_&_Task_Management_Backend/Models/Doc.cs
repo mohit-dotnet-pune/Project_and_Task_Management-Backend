@@ -11,9 +11,6 @@ namespace Project___Task_Management_Backend.Models
         public string fileName { get; set; }
         [Required]
         public string fileURL { get; set; }
-        [ForeignKey("task")]
-        public int taskId { get; set; }
-        public ProjectTask task { get; set; }
 
     }
 }

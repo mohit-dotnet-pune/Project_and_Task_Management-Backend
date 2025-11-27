@@ -26,6 +26,8 @@ namespace Project___Task_Management_Backend.Models
         public int projectId { get; set; }
         [ForeignKey("user")]
         public int? userId { get; set; }
+        [ForeignKey("file")]
+        public int? fileId { get; set; }
 
         [Required]
         public string taskTitle { get; set; }
@@ -42,6 +44,6 @@ namespace Project___Task_Management_Backend.Models
         public User? user {  get; set; }
         public Project? project {  get; set; }
         public ICollection<Comment> comments { get; set; }
-        public ICollection<Doc>? files { get; set; }
+        public Doc? file { get; set; }
     }
 }

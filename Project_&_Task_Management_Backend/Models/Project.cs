@@ -9,6 +9,9 @@ namespace Project___Task_Management_Backend.Models
         [Key]
         public int projectId { get; set; }
 
+        [ForeignKey("file")]
+        public int? fileId { get; set; }
+
         [Required]
         public string projectName { get; set; }
         [Required]
@@ -22,6 +25,7 @@ namespace Project___Task_Management_Backend.Models
 
         public ICollection<ProjectTask>? tasks { get; set; }
         public ICollection<UserProject>? userProjects { get; set; }
+        public Doc? file { get; set; }
 
     }
 }

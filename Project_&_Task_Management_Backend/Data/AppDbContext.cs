@@ -168,12 +168,17 @@ namespace Project___Task_Management_Backend.Data
                 .HasForeignKey(a => a.userId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Doc -> Task
-            modelBuilder.Entity<Doc>()
-                .HasOne(d => d.task)
-                .WithMany(t => t.files)
-                .HasForeignKey(d => d.taskId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ProjectTask>()
+                 .HasOne(c => c.file)
+                 .WithOne()
+                 .HasForeignKey<ProjectTask>(c => c.fileId)
+                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Project>()
+                 .HasOne(c => c.file)
+                 .WithOne()
+                 .HasForeignKey<Project>(c => c.fileId)
+                 .OnDelete(DeleteBehavior.SetNull);
 
             // Seed data
             SeedData(modelBuilder);
@@ -227,6 +232,7 @@ namespace Project___Task_Management_Backend.Data
                 new Project
                 {
                     projectId = 1,
+                    fileId = 4,
                     projectName = "E-Commerce Website",
                     projectDescription = "Build a modern e-commerce platform with React and .NET",
                     projectStartDate = baseDate.AddDays(-30),
@@ -276,6 +282,7 @@ namespace Project___Task_Management_Backend.Data
                     taskId = 1,
                     projectId = 1,
                     userId = 2,
+                    fileId = 3,
                     taskTitle = "Design Homepage",
                     taskDescription = "Create responsive homepage design with product listings",
                     taskPriority = Priority.High,
@@ -352,6 +359,7 @@ namespace Project___Task_Management_Backend.Data
                     taskId = 7,
                     projectId = 3,
                     userId = 4,
+                    
                     taskTitle = "Migration Script Development",
                     taskDescription = "Create scripts to migrate data to new cloud database",
                     taskPriority = Priority.High,
@@ -369,28 +377,28 @@ namespace Project___Task_Management_Backend.Data
                     fileId = 1,
                     fileName = "homepage-design.sketch",
                     fileURL = "/files/designs/homepage-design.sketch",
-                    taskId = 1
+                
                 },
                 new Doc
                 {
                     fileId = 2,
                     fileName = "shopping-cart-specs.pdf",
                     fileURL = "/files/specs/shopping-cart-specs.pdf",
-                    taskId = 2
+                   
                 },
                 new Doc
                 {
                     fileId = 3,
                     fileName = "ui-design-mockups.fig",
                     fileURL = "/files/designs/ui-design-mockups.fig",
-                    taskId = 4
+
                 },
                 new Doc
                 {
                     fileId = 4,
                     fileName = "database-schema.sql",
                     fileURL = "/files/sql/database-schema.sql",
-                    taskId = 6
+                  
                 }
             };
 
@@ -402,6 +410,7 @@ namespace Project___Task_Management_Backend.Data
                     commentId = 1,
                     taskId = 1,
                     userId = 1,
+                    fileId = 1,
                     commentMessage = "Great work on the homepage design! The layout looks clean and modern.",
                     commentCreatedAt = baseDate.AddDays(-8)
                 },

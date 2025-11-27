@@ -8,26 +8,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Project___Task_Management_Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class First : Migration
+    public partial class first : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "projects",
+                name: "docs",
                 columns: table => new
                 {
-                    projectId = table.Column<int>(type: "int", nullable: false)
+                    fileId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    projectName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    projectDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    projectStartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    projectEndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    projectCreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    fileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    fileURL = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_projects", x => x.projectId);
+                    table.PrimaryKey("PK_docs", x => x.fileId);
                 });
 
             migrationBuilder.CreateTable(
@@ -44,6 +41,30 @@ namespace Project___Task_Management_Backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_users", x => x.userId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "projects",
+                columns: table => new
+                {
+                    projectId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    fileId = table.Column<int>(type: "int", nullable: true),
+                    projectName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    projectDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    projectStartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    projectEndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    projectCreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_projects", x => x.projectId);
+                    table.ForeignKey(
+                        name: "FK_projects_docs_fileId",
+                        column: x => x.fileId,
+                        principalTable: "docs",
+                        principalColumn: "fileId",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -77,6 +98,7 @@ namespace Project___Task_Management_Backend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     projectId = table.Column<int>(type: "int", nullable: false),
                     userId = table.Column<int>(type: "int", nullable: true),
+                    fileId = table.Column<int>(type: "int", nullable: true),
                     taskTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     taskDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     taskPriority = table.Column<int>(type: "int", nullable: false),
@@ -87,6 +109,12 @@ namespace Project___Task_Management_Backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_tasks", x => x.taskId);
+                    table.ForeignKey(
+                        name: "FK_tasks_docs_fileId",
+                        column: x => x.fileId,
+                        principalTable: "docs",
+                        principalColumn: "fileId",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_tasks_projects_projectId",
                         column: x => x.projectId,
@@ -128,27 +156,6 @@ namespace Project___Task_Management_Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "docs",
-                columns: table => new
-                {
-                    fileId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    fileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    fileURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    taskId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_docs", x => x.fileId);
-                    table.ForeignKey(
-                        name: "FK_docs_tasks_taskId",
-                        column: x => x.taskId,
-                        principalTable: "tasks",
-                        principalColumn: "taskId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "comments",
                 columns: table => new
                 {
@@ -183,13 +190,23 @@ namespace Project___Task_Management_Backend.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "projects",
-                columns: new[] { "projectId", "projectCreatedAt", "projectDescription", "projectEndDate", "projectName", "projectStartDate" },
+                table: "docs",
+                columns: new[] { "fileId", "fileName", "fileURL" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2023, 12, 16, 10, 0, 0, 0, DateTimeKind.Utc), "Build a modern e-commerce platform with React and .NET", new DateTime(2024, 3, 15, 10, 0, 0, 0, DateTimeKind.Utc), "E-Commerce Website", new DateTime(2023, 12, 16, 10, 0, 0, 0, DateTimeKind.Utc) },
-                    { 2, new DateTime(2023, 12, 31, 10, 0, 0, 0, DateTimeKind.Utc), "Create a cross-platform mobile application", new DateTime(2024, 2, 29, 10, 0, 0, 0, DateTimeKind.Utc), "Mobile App Development", new DateTime(2023, 12, 31, 10, 0, 0, 0, DateTimeKind.Utc) },
-                    { 3, new DateTime(2024, 1, 8, 10, 0, 0, 0, DateTimeKind.Utc), "Migrate from legacy database to cloud solution", new DateTime(2024, 2, 14, 10, 0, 0, 0, DateTimeKind.Utc), "Database Migration", new DateTime(2024, 1, 8, 10, 0, 0, 0, DateTimeKind.Utc) }
+                    { 1, "homepage-design.sketch", "/files/designs/homepage-design.sketch" },
+                    { 2, "shopping-cart-specs.pdf", "/files/specs/shopping-cart-specs.pdf" },
+                    { 3, "ui-design-mockups.fig", "/files/designs/ui-design-mockups.fig" },
+                    { 4, "database-schema.sql", "/files/sql/database-schema.sql" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "projects",
+                columns: new[] { "projectId", "fileId", "projectCreatedAt", "projectDescription", "projectEndDate", "projectName", "projectStartDate" },
+                values: new object[,]
+                {
+                    { 2, null, new DateTime(2023, 12, 31, 10, 0, 0, 0, DateTimeKind.Utc), "Create a cross-platform mobile application", new DateTime(2024, 2, 29, 10, 0, 0, 0, DateTimeKind.Utc), "Mobile App Development", new DateTime(2023, 12, 31, 10, 0, 0, 0, DateTimeKind.Utc) },
+                    { 3, null, new DateTime(2024, 1, 8, 10, 0, 0, 0, DateTimeKind.Utc), "Migrate from legacy database to cloud solution", new DateTime(2024, 2, 14, 10, 0, 0, 0, DateTimeKind.Utc), "Database Migration", new DateTime(2024, 1, 8, 10, 0, 0, 0, DateTimeKind.Utc) }
                 });
 
             migrationBuilder.InsertData(
@@ -217,17 +234,19 @@ namespace Project___Task_Management_Backend.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "projects",
+                columns: new[] { "projectId", "fileId", "projectCreatedAt", "projectDescription", "projectEndDate", "projectName", "projectStartDate" },
+                values: new object[] { 1, 4, new DateTime(2023, 12, 16, 10, 0, 0, 0, DateTimeKind.Utc), "Build a modern e-commerce platform with React and .NET", new DateTime(2024, 3, 15, 10, 0, 0, 0, DateTimeKind.Utc), "E-Commerce Website", new DateTime(2023, 12, 16, 10, 0, 0, 0, DateTimeKind.Utc) });
+
+            migrationBuilder.InsertData(
                 table: "tasks",
-                columns: new[] { "taskId", "projectId", "taskCreatedAt", "taskDescription", "taskDueDate", "taskPriority", "taskStatus", "taskTitle", "userId" },
+                columns: new[] { "taskId", "fileId", "projectId", "taskCreatedAt", "taskDescription", "taskDueDate", "taskPriority", "taskStatus", "taskTitle", "userId" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2023, 12, 21, 10, 0, 0, 0, DateTimeKind.Utc), "Create responsive homepage design with product listings", new DateTime(2024, 1, 5, 10, 0, 0, 0, DateTimeKind.Utc), 2, 2, "Design Homepage", 2 },
-                    { 2, 1, new DateTime(2023, 12, 26, 10, 0, 0, 0, DateTimeKind.Utc), "Develop shopping cart functionality with add/remove items", new DateTime(2024, 1, 30, 10, 0, 0, 0, DateTimeKind.Utc), 2, 1, "Implement Shopping Cart", 3 },
-                    { 3, 1, new DateTime(2023, 12, 31, 10, 0, 0, 0, DateTimeKind.Utc), "Implement login/register system with JWT tokens", new DateTime(2024, 2, 9, 10, 0, 0, 0, DateTimeKind.Utc), 1, 0, "User Authentication", 2 },
-                    { 4, 2, new DateTime(2024, 1, 3, 10, 0, 0, 0, DateTimeKind.Utc), "Design mobile app interface and user experience", new DateTime(2024, 1, 25, 10, 0, 0, 0, DateTimeKind.Utc), 1, 1, "UI/UX Design", 4 },
-                    { 5, 2, new DateTime(2024, 1, 7, 10, 0, 0, 0, DateTimeKind.Utc), "Connect mobile app to backend REST API", new DateTime(2024, 2, 4, 10, 0, 0, 0, DateTimeKind.Utc), 2, 0, "Backend API Integration", 2 },
-                    { 6, 3, new DateTime(2024, 1, 8, 10, 0, 0, 0, DateTimeKind.Utc), "Analyze existing database structure and data", new DateTime(2024, 1, 13, 10, 0, 0, 0, DateTimeKind.Utc), 1, 2, "Data Analysis", 3 },
-                    { 7, 3, new DateTime(2024, 1, 10, 10, 0, 0, 0, DateTimeKind.Utc), "Create scripts to migrate data to new cloud database", new DateTime(2024, 1, 30, 10, 0, 0, 0, DateTimeKind.Utc), 2, 1, "Migration Script Development", 4 }
+                    { 4, null, 2, new DateTime(2024, 1, 3, 10, 0, 0, 0, DateTimeKind.Utc), "Design mobile app interface and user experience", new DateTime(2024, 1, 25, 10, 0, 0, 0, DateTimeKind.Utc), 1, 1, "UI/UX Design", 4 },
+                    { 5, null, 2, new DateTime(2024, 1, 7, 10, 0, 0, 0, DateTimeKind.Utc), "Connect mobile app to backend REST API", new DateTime(2024, 2, 4, 10, 0, 0, 0, DateTimeKind.Utc), 2, 0, "Backend API Integration", 2 },
+                    { 6, null, 3, new DateTime(2024, 1, 8, 10, 0, 0, 0, DateTimeKind.Utc), "Analyze existing database structure and data", new DateTime(2024, 1, 13, 10, 0, 0, 0, DateTimeKind.Utc), 1, 2, "Data Analysis", 3 },
+                    { 7, null, 3, new DateTime(2024, 1, 10, 10, 0, 0, 0, DateTimeKind.Utc), "Create scripts to migrate data to new cloud database", new DateTime(2024, 1, 30, 10, 0, 0, 0, DateTimeKind.Utc), 2, 1, "Migration Script Development", 4 }
                 });
 
             migrationBuilder.InsertData(
@@ -235,9 +254,6 @@ namespace Project___Task_Management_Backend.Migrations
                 columns: new[] { "userProjectId", "projectId", "userId" },
                 values: new object[,]
                 {
-                    { 1, 1, 1 },
-                    { 2, 1, 2 },
-                    { 3, 1, 3 },
                     { 4, 2, 1 },
                     { 5, 2, 2 },
                     { 6, 2, 4 },
@@ -251,28 +267,40 @@ namespace Project___Task_Management_Backend.Migrations
                 columns: new[] { "commentId", "commentCreatedAt", "commentMessage", "fileId", "taskId", "userId" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 1, 7, 10, 0, 0, 0, DateTimeKind.Utc), "Great work on the homepage design! The layout looks clean and modern.", null, 1, 1 },
-                    { 2, new DateTime(2024, 1, 8, 10, 0, 0, 0, DateTimeKind.Utc), "Thanks! I'll start working on the mobile responsive version next.", null, 1, 2 },
-                    { 3, new DateTime(2024, 1, 10, 10, 0, 0, 0, DateTimeKind.Utc), "Having some issues with the cart state management. Need to review the approach.", null, 2, 3 },
                     { 5, new DateTime(2024, 1, 12, 10, 0, 0, 0, DateTimeKind.Utc), "The design is 80% complete. Waiting for feedback on the color scheme.", null, 4, 4 },
                     { 6, new DateTime(2024, 1, 14, 10, 0, 0, 0, DateTimeKind.Utc), "Data analysis completed. Found some inconsistencies in the legacy data.", null, 6, 3 }
                 });
 
             migrationBuilder.InsertData(
-                table: "docs",
-                columns: new[] { "fileId", "fileName", "fileURL", "taskId" },
+                table: "tasks",
+                columns: new[] { "taskId", "fileId", "projectId", "taskCreatedAt", "taskDescription", "taskDueDate", "taskPriority", "taskStatus", "taskTitle", "userId" },
                 values: new object[,]
                 {
-                    { 1, "homepage-design.sketch", "/files/designs/homepage-design.sketch", 1 },
-                    { 2, "shopping-cart-specs.pdf", "/files/specs/shopping-cart-specs.pdf", 2 },
-                    { 3, "ui-design-mockups.fig", "/files/designs/ui-design-mockups.fig", 4 },
-                    { 4, "database-schema.sql", "/files/sql/database-schema.sql", 6 }
+                    { 1, 3, 1, new DateTime(2023, 12, 21, 10, 0, 0, 0, DateTimeKind.Utc), "Create responsive homepage design with product listings", new DateTime(2024, 1, 5, 10, 0, 0, 0, DateTimeKind.Utc), 2, 2, "Design Homepage", 2 },
+                    { 2, null, 1, new DateTime(2023, 12, 26, 10, 0, 0, 0, DateTimeKind.Utc), "Develop shopping cart functionality with add/remove items", new DateTime(2024, 1, 30, 10, 0, 0, 0, DateTimeKind.Utc), 2, 1, "Implement Shopping Cart", 3 },
+                    { 3, null, 1, new DateTime(2023, 12, 31, 10, 0, 0, 0, DateTimeKind.Utc), "Implement login/register system with JWT tokens", new DateTime(2024, 2, 9, 10, 0, 0, 0, DateTimeKind.Utc), 1, 0, "User Authentication", 2 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "userProjects",
+                columns: new[] { "userProjectId", "projectId", "userId" },
+                values: new object[,]
+                {
+                    { 1, 1, 1 },
+                    { 2, 1, 2 },
+                    { 3, 1, 3 }
                 });
 
             migrationBuilder.InsertData(
                 table: "comments",
                 columns: new[] { "commentId", "commentCreatedAt", "commentMessage", "fileId", "taskId", "userId" },
-                values: new object[] { 4, new DateTime(2024, 1, 11, 10, 0, 0, 0, DateTimeKind.Utc), "Check the updated specifications document for the cart requirements.", 2, 2, 1 });
+                values: new object[,]
+                {
+                    { 1, new DateTime(2024, 1, 7, 10, 0, 0, 0, DateTimeKind.Utc), "Great work on the homepage design! The layout looks clean and modern.", 1, 1, 1 },
+                    { 2, new DateTime(2024, 1, 8, 10, 0, 0, 0, DateTimeKind.Utc), "Thanks! I'll start working on the mobile responsive version next.", null, 1, 2 },
+                    { 3, new DateTime(2024, 1, 10, 10, 0, 0, 0, DateTimeKind.Utc), "Having some issues with the cart state management. Need to review the approach.", null, 2, 3 },
+                    { 4, new DateTime(2024, 1, 11, 10, 0, 0, 0, DateTimeKind.Utc), "Check the updated specifications document for the cart requirements.", 2, 2, 1 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_activities_userId",
@@ -297,9 +325,18 @@ namespace Project___Task_Management_Backend.Migrations
                 column: "userId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_docs_taskId",
-                table: "docs",
-                column: "taskId");
+                name: "IX_projects_fileId",
+                table: "projects",
+                column: "fileId",
+                unique: true,
+                filter: "[fileId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_tasks_fileId",
+                table: "tasks",
+                column: "fileId",
+                unique: true,
+                filter: "[fileId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_tasks_projectId",
@@ -335,9 +372,6 @@ namespace Project___Task_Management_Backend.Migrations
                 name: "userProjects");
 
             migrationBuilder.DropTable(
-                name: "docs");
-
-            migrationBuilder.DropTable(
                 name: "tasks");
 
             migrationBuilder.DropTable(
@@ -345,6 +379,9 @@ namespace Project___Task_Management_Backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "users");
+
+            migrationBuilder.DropTable(
+                name: "docs");
         }
     }
 }

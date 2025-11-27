@@ -150,6 +150,7 @@ namespace Project___Task_Management_Backend.Migrations
                             commentId = 1,
                             commentCreatedAt = new DateTime(2024, 1, 7, 10, 0, 0, 0, DateTimeKind.Utc),
                             commentMessage = "Great work on the homepage design! The layout looks clean and modern.",
+                            fileId = 1,
                             taskId = 1,
                             userId = 1
                         },
@@ -212,12 +213,7 @@ namespace Project___Task_Management_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("taskId")
-                        .HasColumnType("int");
-
                     b.HasKey("fileId");
-
-                    b.HasIndex("taskId");
 
                     b.ToTable("docs");
 
@@ -226,29 +222,25 @@ namespace Project___Task_Management_Backend.Migrations
                         {
                             fileId = 1,
                             fileName = "homepage-design.sketch",
-                            fileURL = "/files/designs/homepage-design.sketch",
-                            taskId = 1
+                            fileURL = "/files/designs/homepage-design.sketch"
                         },
                         new
                         {
                             fileId = 2,
                             fileName = "shopping-cart-specs.pdf",
-                            fileURL = "/files/specs/shopping-cart-specs.pdf",
-                            taskId = 2
+                            fileURL = "/files/specs/shopping-cart-specs.pdf"
                         },
                         new
                         {
                             fileId = 3,
                             fileName = "ui-design-mockups.fig",
-                            fileURL = "/files/designs/ui-design-mockups.fig",
-                            taskId = 4
+                            fileURL = "/files/designs/ui-design-mockups.fig"
                         },
                         new
                         {
                             fileId = 4,
                             fileName = "database-schema.sql",
-                            fileURL = "/files/sql/database-schema.sql",
-                            taskId = 6
+                            fileURL = "/files/sql/database-schema.sql"
                         });
                 });
 
@@ -259,6 +251,9 @@ namespace Project___Task_Management_Backend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("projectId"));
+
+                    b.Property<int?>("fileId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("projectCreatedAt")
                         .HasColumnType("datetime2");
@@ -279,12 +274,17 @@ namespace Project___Task_Management_Backend.Migrations
 
                     b.HasKey("projectId");
 
+                    b.HasIndex("fileId")
+                        .IsUnique()
+                        .HasFilter("[fileId] IS NOT NULL");
+
                     b.ToTable("projects");
 
                     b.HasData(
                         new
                         {
                             projectId = 1,
+                            fileId = 4,
                             projectCreatedAt = new DateTime(2023, 12, 16, 10, 0, 0, 0, DateTimeKind.Utc),
                             projectDescription = "Build a modern e-commerce platform with React and .NET",
                             projectEndDate = new DateTime(2024, 3, 15, 10, 0, 0, 0, DateTimeKind.Utc),
@@ -319,6 +319,9 @@ namespace Project___Task_Management_Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("taskId"));
 
+                    b.Property<int?>("fileId")
+                        .HasColumnType("int");
+
                     b.Property<int>("projectId")
                         .HasColumnType("int");
 
@@ -347,6 +350,10 @@ namespace Project___Task_Management_Backend.Migrations
 
                     b.HasKey("taskId");
 
+                    b.HasIndex("fileId")
+                        .IsUnique()
+                        .HasFilter("[fileId] IS NOT NULL");
+
                     b.HasIndex("projectId");
 
                     b.HasIndex("userId");
@@ -357,6 +364,7 @@ namespace Project___Task_Management_Backend.Migrations
                         new
                         {
                             taskId = 1,
+                            fileId = 3,
                             projectId = 1,
                             taskCreatedAt = new DateTime(2023, 12, 21, 10, 0, 0, 0, DateTimeKind.Utc),
                             taskDescription = "Create responsive homepage design with product listings",
@@ -618,19 +626,23 @@ namespace Project___Task_Management_Backend.Migrations
                     b.Navigation("user");
                 });
 
-            modelBuilder.Entity("Project___Task_Management_Backend.Models.Doc", b =>
+            modelBuilder.Entity("Project___Task_Management_Backend.Models.Project", b =>
                 {
-                    b.HasOne("Project___Task_Management_Backend.Models.ProjectTask", "task")
-                        .WithMany("files")
-                        .HasForeignKey("taskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Project___Task_Management_Backend.Models.Doc", "file")
+                        .WithOne()
+                        .HasForeignKey("Project___Task_Management_Backend.Models.Project", "fileId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.Navigation("task");
+                    b.Navigation("file");
                 });
 
             modelBuilder.Entity("Project___Task_Management_Backend.Models.ProjectTask", b =>
                 {
+                    b.HasOne("Project___Task_Management_Backend.Models.Doc", "file")
+                        .WithOne()
+                        .HasForeignKey("Project___Task_Management_Backend.Models.ProjectTask", "fileId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Project___Task_Management_Backend.Models.Project", "project")
                         .WithMany("tasks")
                         .HasForeignKey("projectId")
@@ -641,6 +653,8 @@ namespace Project___Task_Management_Backend.Migrations
                         .WithMany("tasks")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("file");
 
                     b.Navigation("project");
 
@@ -676,8 +690,6 @@ namespace Project___Task_Management_Backend.Migrations
             modelBuilder.Entity("Project___Task_Management_Backend.Models.ProjectTask", b =>
                 {
                     b.Navigation("comments");
-
-                    b.Navigation("files");
                 });
 
             modelBuilder.Entity("Project___Task_Management_Backend.Models.User", b =>
