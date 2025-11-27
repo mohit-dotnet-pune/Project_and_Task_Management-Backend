@@ -19,9 +19,6 @@ namespace Project___Task_Management_Backend.Models
         public DateTime projectEndDate { get; set; }
         public DateTime projectCreatedAt { get; set; } = DateTime.UtcNow;
 
-        [ForeignKey("file")]    
-        public int? fileId { get; set; }  //❌❌🤣🤣
-        public Doc? file { get;set; }  //❌❌🤣🤣
 
         public ICollection<ProjectTask>? tasks { get; set; }
         public ICollection<UserProject>? userProjects { get; set; }
