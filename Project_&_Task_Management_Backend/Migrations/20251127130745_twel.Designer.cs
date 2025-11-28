@@ -12,8 +12,8 @@ using Project___Task_Management_Backend.Data;
 namespace Project___Task_Management_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251127093506_second")]
-    partial class second
+    [Migration("20251127130745_twel")]
+    partial class twel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -613,7 +613,7 @@ namespace Project___Task_Management_Backend.Migrations
                     b.HasOne("Project___Task_Management_Backend.Models.ProjectTask", "task")
                         .WithMany("comments")
                         .HasForeignKey("taskId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Project___Task_Management_Backend.Models.User", "user")

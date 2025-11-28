@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Project___Task_Management_Backend.DTO
+namespace Project___Task_Management_Backend.DTO.ProjectDtos
 {
     public class CreateProjectDto
     {

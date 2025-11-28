@@ -12,8 +12,8 @@ using Project___Task_Management_Backend.Data;
 namespace Project___Task_Management_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251127095807_third")]
-    partial class third
+    [Migration("20251128062449_fiftheen")]
+    partial class fiftheen
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -459,6 +459,36 @@ namespace Project___Task_Management_Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("userId"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("EmailOtp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EmailOtpExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("JwtToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("JwtTokenExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordResetOtp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PasswordResetOtpExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RefreshTokenExpiry")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("userEmail")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -482,6 +512,8 @@ namespace Project___Task_Management_Backend.Migrations
                         new
                         {
                             userId = 1,
+                            CreatedAt = new DateTime(2025, 11, 28, 6, 24, 29, 729, DateTimeKind.Utc).AddTicks(2740),
+                            EmailConfirmed = false,
                             userEmail = "john.doe@company.com",
                             userName = "John Doe",
                             userPassword = "hashed_password_1",
@@ -490,6 +522,8 @@ namespace Project___Task_Management_Backend.Migrations
                         new
                         {
                             userId = 2,
+                            CreatedAt = new DateTime(2025, 11, 28, 6, 24, 29, 732, DateTimeKind.Utc).AddTicks(4239),
+                            EmailConfirmed = false,
                             userEmail = "jane.smith@company.com",
                             userName = "Jane Smith",
                             userPassword = "hashed_password_2",
@@ -498,6 +532,8 @@ namespace Project___Task_Management_Backend.Migrations
                         new
                         {
                             userId = 3,
+                            CreatedAt = new DateTime(2025, 11, 28, 6, 24, 29, 732, DateTimeKind.Utc).AddTicks(4341),
+                            EmailConfirmed = false,
                             userEmail = "mike.johnson@company.com",
                             userName = "Mike Johnson",
                             userPassword = "hashed_password_3",
@@ -506,6 +542,8 @@ namespace Project___Task_Management_Backend.Migrations
                         new
                         {
                             userId = 4,
+                            CreatedAt = new DateTime(2025, 11, 28, 6, 24, 29, 732, DateTimeKind.Utc).AddTicks(4372),
+                            EmailConfirmed = false,
                             userEmail = "sarah.wilson@company.com",
                             userName = "Sarah Wilson",
                             userPassword = "hashed_password_4",
@@ -669,7 +707,7 @@ namespace Project___Task_Management_Backend.Migrations
                     b.HasOne("Project___Task_Management_Backend.Models.Project", "project")
                         .WithMany("userProjects")
                         .HasForeignKey("projectId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Project___Task_Management_Backend.Models.User", "user")

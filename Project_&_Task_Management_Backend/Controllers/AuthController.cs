@@ -1,0 +1,116 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using Microsoft.AspNetCore.Http;
+
+using Microsoft.AspNetCore.Mvc;
+using Project___Task_Management_Backend.Interfaces;
+using Project___Task_Management_Backend.DTO.UserDtos;
+
+namespace Project___Task_Management_Backend.Controllers
+{
+
+    [Route("api/[controller]")]
+
+    [ApiController]
+
+    public class AuthController : ControllerBase
+
+    {
+
+        private readonly IAuthService _svc;
+
+        public AuthController(IAuthService svc)
+
+        {
+
+            _svc = svc;
+
+        }
+
+        [HttpPost("register")]
+
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+
+        {
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var (success, message) = await _svc.RegisterAsync(dto);
+
+            if (!success) return BadRequest(new { message });
+
+            return Ok(new { message });
+
+        }
+
+        [HttpPost("verify-email")]
+
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailOtpDto dto)
+
+        {
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var (success, message) = await _svc.VerifyEmailOtpAsync(dto);
+
+            if (!success) return BadRequest(new { message });
+
+            return Ok(new { message });
+
+        }
+
+        [HttpPost("login")]
+
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+
+        {
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var (success, token, message) = await _svc.LoginAsync(dto);
+
+            if (!success) return Unauthorized(new { message });
+
+            return Ok(new { token, message });
+
+        }
+
+        [HttpPost("forgot-password")]
+
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+
+        {
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var (success, message) = await _svc.ForgotPasswordAsync(dto);
+
+            if (!success) return BadRequest(new { message });
+
+            return Ok(new { message });
+
+        }
+
+        [HttpPost("reset-password")]
+
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+
+        {
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var (success, message) = await _svc.ResetPasswordAsync(dto);
+
+            if (!success) return BadRequest(new { message });
+
+            return Ok(new { message });
+
+        }
+
+
+    }
+
+}
+
+ 

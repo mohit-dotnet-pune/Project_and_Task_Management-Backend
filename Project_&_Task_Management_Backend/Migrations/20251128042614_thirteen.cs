@@ -5,7 +5,7 @@
 namespace Project___Task_Management_Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class second : Migration
+    public partial class thirteen : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
