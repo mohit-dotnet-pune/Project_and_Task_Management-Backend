@@ -12,8 +12,8 @@ using Project___Task_Management_Backend.Data;
 namespace Project___Task_Management_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251127093501_second")]
-    partial class second
+    [Migration("20251127130745_twel")]
+    partial class twel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

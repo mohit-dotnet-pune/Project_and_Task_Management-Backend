@@ -12,8 +12,8 @@ using Project___Task_Management_Backend.Data;
 namespace Project___Task_Management_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251127095807_third")]
-    partial class third
+    [Migration("20251127130256_twelve")]
+    partial class twelve
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -669,7 +669,7 @@ namespace Project___Task_Management_Backend.Migrations
                     b.HasOne("Project___Task_Management_Backend.Models.Project", "project")
                         .WithMany("userProjects")
                         .HasForeignKey("projectId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Project___Task_Management_Backend.Models.User", "user")
