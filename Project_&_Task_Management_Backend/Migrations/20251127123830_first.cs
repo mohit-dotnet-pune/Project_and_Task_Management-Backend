@@ -180,7 +180,8 @@ namespace Project___Task_Management_Backend.Migrations
                         name: "FK_comments_tasks_taskId",
                         column: x => x.taskId,
                         principalTable: "tasks",
-                        principalColumn: "taskId");
+                        principalColumn: "taskId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_comments_users_userId",
                         column: x => x.userId,

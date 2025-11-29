@@ -24,9 +24,11 @@ namespace Project___Task_Management_Backend.Models
         [ForeignKey("project")]
         [Required]
         public int projectId { get; set; }
+
         [ForeignKey("user")]
 
         public int? userId { get; set; }
+
         [ForeignKey("file")]
 
         public int? fileId { get; set; }
