@@ -328,9 +328,12 @@ namespace Project___Task_Management_Backend.Services
             return (true, "Password reset successful.");
 
         }
+        public List<User> GetAll()
+        {
+            return _db.users.ToList();
+        }
 
     }
-
 }
 
  

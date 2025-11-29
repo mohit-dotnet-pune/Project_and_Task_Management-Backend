@@ -33,6 +33,7 @@ namespace Project___Task_Management_Backend.Repository
         {
             return await _db.projects
                 .Include(p => p.tasks)    // return tasks with list also
+                .Include(p => p.file)
                 .ToListAsync();
         }
 
@@ -70,6 +71,62 @@ namespace Project___Task_Management_Backend.Repository
             return await _db.SaveChangesAsync() > 0;
         }
 
+
+        // user project
+        public async Task<bool> ExistsAsync(int userId, int projectId)
+        {
+            return await _db.userProjects
+                .AnyAsync(up => up.userId == userId && up.projectId == projectId);
+        }
+
+        public async Task<UserProject?> GetMappingAsync(int userId, int projectId)
+        {
+            return await _db.userProjects
+                .FirstOrDefaultAsync(up => up.userId == userId && up.projectId == projectId);
+        }
+
+        public async Task<UserProject?> RemoveMappingAsync(int userId, int projectId)
+        {
+            var mapping = await GetMappingAsync(userId, projectId);
+            if (mapping == null) return null;
+            _db.Remove(mapping);
+             await _db.SaveChangesAsync();
+            return mapping;
+        }
+
+        public async Task<bool> AddUserToProject(int userId, int projectId)
+        {
+            if (await ExistsAsync(userId, projectId))
+                return false;
+
+            var model = new UserProject
+            {
+                userId = userId,
+                projectId = projectId
+            };
+
+             _db.userProjects.Add(model);
+             await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<List<User>> GetUsersByProjectAsync(int projectId)
+        {
+            return await _db.userProjects
+                .Where(up => up.projectId == projectId)
+                .Select(up => up.user!)
+                .ToListAsync();
+        }
+
+        public async Task<List<Project>> GetProjectsByUserAsync(int userId)
+        {
+            return await _db.userProjects
+                .Where(up => up.userId == userId)
+                .Select(up => up.project!)
+                .ToListAsync();
+        }
+
+        
     }
 }
 

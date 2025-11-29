@@ -1,0 +1,92 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto;
+using Project___Task_Management_Backend.Data;
+using Project___Task_Management_Backend.DTO.CommentDtos;
+using Project___Task_Management_Backend.Interfaces;
+using Project___Task_Management_Backend.Models;
+
+namespace Project___Task_Management_Backend.Services
+{
+    public class CommentService : ICommentService
+    {
+        private readonly ICommentRepository _commentRepo;
+        private readonly AppDbContext _appDbContext;
+
+        public CommentService(ICommentRepository commentRepo, AppDbContext app)
+        {
+            _appDbContext = app;
+            _commentRepo = commentRepo;
+        }
+
+        //------------------ CREATE ------------------
+        public async Task<Comment?> CreateComment(CreateCommentDto dto)
+        {
+            var comment = new Comment();
+            comment.commentMessage = dto.commentMessage;
+            comment.taskId = dto.taskId;
+            comment.userId = dto.userId;
+
+            _appDbContext.comments.Add(comment);
+
+            await _appDbContext.SaveChangesAsync();
+            return comment;
+        }
+
+        //------------------ READ ------------------
+        public async Task<Comment?> GetComment(int commentId)
+        {
+            var comment = await _appDbContext.comments.FindAsync(commentId);
+            return comment;
+        }
+
+        public async Task<IEnumerable<Comment>> GetComments()
+        {
+            return  await _appDbContext.comments.ToListAsync();
+        }
+
+        //------------------ DELETE ------------------
+        public async Task<bool> DeleteComment(int commentId)
+        {
+            Comment comment = await _appDbContext.comments.FindAsync(commentId);
+            if (comment == null) return false;
+
+             _appDbContext.comments.Remove(comment);
+            await _appDbContext.SaveChangesAsync();
+            return true;
+        }
+
+        //------------------ UPDATE ------------------
+        public async Task<Comment?> UpdateComment(int commentId, UpdateCommentDto dto)
+        {
+            var comment = await _appDbContext.comments.FindAsync(commentId);
+            if (comment == null) return null;
+
+            if (dto.commentMessage != null)
+                comment.commentMessage = dto.commentMessage;
+
+            if (dto.fileId.HasValue)
+            {
+                comment.fileId = dto.fileId;
+                comment.file = await _appDbContext.docs.FindAsync(dto.fileId);
+            }
+
+            await _appDbContext.SaveChangesAsync();
+
+            return comment;
+        }
+
+        //------------------ EXTRA FILTERS ------------------
+        public async Task<IEnumerable<Comment>> GetCommentsByTask(int taskId)
+        {
+            var list = await _commentRepo.GetCommentsByTaskId(taskId);
+            return list;
+        }
+
+        public async Task<IEnumerable<Comment>> GetCommentsByUser(int userId)
+        {
+            var list = await _commentRepo.GetCommentsByUserId(userId);
+            return list;
+        }
+    }
+
+}

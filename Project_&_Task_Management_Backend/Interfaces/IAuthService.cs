@@ -1,4 +1,5 @@
 ﻿using Project___Task_Management_Backend.DTO.UserDtos;
+using Project___Task_Management_Backend.Models;
 
 namespace Project___Task_Management_Backend.Interfaces
 {
@@ -16,6 +17,7 @@ namespace Project___Task_Management_Backend.Interfaces
         Task<(bool Success, string Message)> ForgotPasswordAsync(ForgotPasswordDto dto);
 
         Task<(bool Success, string Message)> ResetPasswordAsync(ResetPasswordDto dto);
+        List<User> GetAll();
 
     }
 

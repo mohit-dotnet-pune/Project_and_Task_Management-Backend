@@ -32,6 +32,13 @@ namespace Project___Task_Management_Backend.Controllers
 
             return Ok(file); // returns fileId also
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllFiles()
+        {
+           List<Doc> list = _context.docs.ToList();
+            return Ok(list);
+        }
     }
 }
 

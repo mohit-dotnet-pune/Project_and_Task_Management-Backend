@@ -47,7 +47,7 @@ namespace Project___Task_Management_Backend.Models
 
         public User? user {  get; set; }
         public Project? project {  get; set; }
-        public ICollection<Comment> comments { get; set; }
+        public ICollection<Comment>? comments { get; set; }
         public Doc? file { get; set; }
     }
 }
