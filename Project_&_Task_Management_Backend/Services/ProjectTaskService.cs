@@ -2,6 +2,7 @@
 using Project___Task_Management_Backend.DTO.ProjectTaskDtos;
 using Project___Task_Management_Backend.Interfaces;
 using Project___Task_Management_Backend.Models;
+using System.Threading.Tasks;
 
 namespace Project___Task_Management_Backend.Services
 {
@@ -12,12 +13,15 @@ namespace Project___Task_Management_Backend.Services
         private readonly IProjectRepository _projectRepo;
         private readonly IProjectRepository _fileRepo;
         private readonly AppDbContext _appDbContext;
+        private readonly NotificationService _notifier;
+
         public ProjectTaskService(
             IProjectTaskRepository repo,
             IAuthService userRepo,
             IProjectRepository projectRepo,
             IProjectRepository fileRepo,
-            AppDbContext appDbContext
+            AppDbContext appDbContext,
+            NotificationService notifer
             )
         {
             _repo = repo;
@@ -25,6 +29,7 @@ namespace Project___Task_Management_Backend.Services
             _projectRepo = projectRepo;
             _fileRepo = fileRepo;
             _appDbContext = appDbContext;
+            _notifier = notifer;
         }
 
         public async Task<ProjectTask?> CreateTaskAsync(CreateTaskDto dto)
@@ -52,6 +57,19 @@ namespace Project___Task_Management_Backend.Services
         {
             var task = await _appDbContext.tasks.FindAsync(id);
             if (task == null) return null;
+
+            // send notification
+            if (task.taskStatus != dto.taskStatus && task.userId != null)
+            {
+                var msg = new NotificationMessage
+                {
+                    Type = "taskStatusUpdated",
+                    Title = $"Task Status updated to {dto.taskStatus}",
+                    Body = $"Your task status is updated, {task.taskTitle},  (ID: {task.taskId})"
+                };
+
+                await _notifier.SendToUserAsync(task.userId.ToString(), msg);
+            }
 
             task.taskTitle = dto.taskTitle;
             task.taskDescription = dto.taskDescription;
@@ -94,6 +112,16 @@ namespace Project___Task_Management_Backend.Services
             task.userId = userId;
             task.user = user;
             await _appDbContext.SaveChangesAsync();
+
+            var msg = new NotificationMessage
+            {
+                Type = "taskAssigned",
+                Title = "Task Assigned",
+                Body = $"You have been assigned to Task {task.taskTitle},  (ID: {taskId})"
+            };
+
+            await _notifier.SendToUserAsync(userId.ToString(), msg);
+
             return true;
         }
 
@@ -102,9 +130,20 @@ namespace Project___Task_Management_Backend.Services
             var task = await _appDbContext.tasks.FindAsync(taskId);
             if (task == null) return false;
 
+            var msg = new NotificationMessage
+            {
+                Type = "removedFromtask",
+                Title = "Removed from Task",
+                Body = $"You have been removed From Task {task.taskTitle},  (ID: {taskId})"
+            };
+
+            await _notifier.SendToUserAsync(task.userId.ToString(), msg);
+
             task.userId = null;
             task.user = null;
             await _appDbContext.SaveChangesAsync();
+
+       
             return true;
         }
 

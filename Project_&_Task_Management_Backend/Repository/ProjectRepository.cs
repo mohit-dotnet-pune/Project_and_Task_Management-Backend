@@ -2,15 +2,19 @@
 using global::Project___Task_Management_Backend.Interfaces;
 using global::Project___Task_Management_Backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Project___Task_Management_Backend.Services;
+using System.Threading.Tasks;
 
 namespace Project___Task_Management_Backend.Repository
 {
     public class ProjectRepository : IProjectRepository
     {
         private readonly AppDbContext _db;
+        private readonly NotificationService _notifier;
 
-        public ProjectRepository(AppDbContext db)
+        public ProjectRepository(AppDbContext db, NotificationService notifier)
         {
+            _notifier = notifier;
             _db = db;
         }
 
@@ -91,6 +95,15 @@ namespace Project___Task_Management_Backend.Repository
             if (mapping == null) return null;
             _db.Remove(mapping);
              await _db.SaveChangesAsync();
+
+            var msg = new NotificationMessage
+            {
+                Type = "removedFromproject",
+                Title = "Removed from Project ",
+                Body = $"You have been Removed from Project  (ID: {projectId})"
+            };
+
+            await _notifier.SendToUserAsync(userId.ToString(), msg);
             return mapping;
         }
 
@@ -107,6 +120,16 @@ namespace Project___Task_Management_Backend.Repository
 
              _db.userProjects.Add(model);
              await _db.SaveChangesAsync();
+
+            var msg = new NotificationMessage
+            {
+                Type = "projectAssigned",
+                Title = "Project Assigned",
+                Body = $"You have been assigned to Project  (ID: {projectId})"
+            };
+
+            await _notifier.SendToUserAsync(userId.ToString(), msg);
+
             return true;
         }
 
