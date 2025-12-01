@@ -102,7 +102,7 @@ namespace Project___Task_Management_Backend.Controllers
         }
 
         [HttpPost("addUserToProject")]
-        public async Task<IActionResult> AddUser(int userId, int projectId)
+        public async Task<IActionResult> AddUser([FromQuery] int userId,[FromQuery] int projectId)
         {
             var result = await _service.AddUserToProjectAsync(userId, projectId);
             if (!result.IsSuccess) return BadRequest(result);
