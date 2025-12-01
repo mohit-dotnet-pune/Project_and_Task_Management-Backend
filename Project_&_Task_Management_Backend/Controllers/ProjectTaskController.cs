@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Project___Task_Management_Backend.DTO;
@@ -11,6 +12,7 @@ namespace Project___Task_Management_Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ProjectTaskController : ControllerBase
     {
         private readonly IProjectTaskService _service;

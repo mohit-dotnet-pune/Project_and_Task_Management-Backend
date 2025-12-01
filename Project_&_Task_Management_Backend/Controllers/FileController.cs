@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-using global::Project___Task_Management_Backend.Data;
+﻿using global::Project___Task_Management_Backend.Data;
 using global::Project___Task_Management_Backend.DTO.FileDtos;
 using global::Project___Task_Management_Backend.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Project___Task_Management_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class FileController : ControllerBase
     {
         private readonly AppDbContext _context;

@@ -5,6 +5,7 @@ using Project___Task_Management_Backend.Data;
 using Project___Task_Management_Backend.Helpers;
 using Project___Task_Management_Backend.Hubs;
 using Project___Task_Management_Backend.Interfaces;
+using Project___Task_Management_Backend.Middleware;
 using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Repository;
 using Project___Task_Management_Backend.Services;
@@ -48,6 +49,7 @@ var issuer = jwtSection["Issuer"];
 var audience = jwtSection["Audience"];
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
 .AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false; // change to true in production
@@ -63,6 +65,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ClockSkew = TimeSpan.Zero
     };
 });
+
+
 
 // cloudinary setup
 builder.Services.Configure<CloudinarySettings>(
@@ -105,6 +109,7 @@ app.MapHub<NotificationHub>("/notifications");
 app.UseCors("AllowFrontend");   // ? MUST BE HERE before MapHub + MapControllers
 
 // Middleware
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -113,9 +118,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();     // FIXED: Authentication MUST come before Authorization
+app.UseMiddleware<JwtVerificationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
-app.UseCors();
+
 
 app.Run();

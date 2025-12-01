@@ -254,7 +254,7 @@ namespace Project___Task_Management_Backend.Services
 
                 new Claim("email", user.userEmail),
 
-                new Claim("role", user.userRole.ToString()),
+                new Claim(ClaimTypes.Role, user.userRole.ToString()),
                 new Claim("userId", user.userId.ToString()),
 
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
