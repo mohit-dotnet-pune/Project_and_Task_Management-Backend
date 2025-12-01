@@ -17,21 +17,7 @@ namespace Project___Task_Management_Backend.Controllers
             _context = context;
         }
 
-        // POST: api/File
-        //[HttpPost]
-        //public async Task<IActionResult> CreateFile(CreateFileDto dto)
-        //{
-        //    var file = new Doc
-        //    {
-        //        fileName = dto.fileName,
-        //        fileURL = dto.fileURL
-        //    };
-
-        //    _context.docs.Add(file);
-        //    await _context.SaveChangesAsync();
-
-        //    return Ok(file); // returns fileId also
-        //}
+       
 
         [HttpGet]
         public async Task<IActionResult> GetAllFiles()
