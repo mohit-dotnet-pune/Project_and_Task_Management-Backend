@@ -247,11 +247,17 @@ namespace Project___Task_Management_Backend.Services
 
             var claims = new[]
             {
-        new Claim("username", user.userName),
-        new Claim("email", user.userEmail),
-        new Claim(ClaimTypes.Role, user.userRole.ToString()),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-    };
+
+                new Claim("username", user.userName),
+
+                new Claim("email", user.userEmail),
+
+                new Claim("role", user.userRole.ToString()),
+                new Claim("userId", user.userId.ToString()),
+
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+
+            };
 
             var token = new JwtSecurityToken(
                 issuer: issuer,
@@ -344,9 +350,12 @@ namespace Project___Task_Management_Backend.Services
 
             return (true, "Password reset successful.");
         }
+        public List<User> GetAll()
+        {
+            return _db.users.ToList();
+        }
 
     }
-
 }
 
  

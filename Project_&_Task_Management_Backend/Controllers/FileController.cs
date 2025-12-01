@@ -18,20 +18,29 @@ namespace Project___Task_Management_Backend.Controllers
         }
 
         // POST: api/File
-        [HttpPost]
-        public async Task<IActionResult> CreateFile(CreateFileDto dto)
+        //[HttpPost]
+        //public async Task<IActionResult> CreateFile(CreateFileDto dto)
+        //{
+        //    var file = new Doc
+        //    {
+        //        fileName = dto.fileName,
+        //        fileURL = dto.fileURL
+        //    };
+
+        //    _context.docs.Add(file);
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok(file); // returns fileId also
+        //}
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllFiles()
         {
-            var file = new Doc
-            {
-                fileName = dto.fileName,
-                fileURL = dto.fileURL
-            };
-
-            _context.docs.Add(file);
-            await _context.SaveChangesAsync();
-
-            return Ok(file); // returns fileId also
+           List<Doc> list = _context.docs.ToList();
+            return Ok(list);
         }
+
+
     }
 }
 

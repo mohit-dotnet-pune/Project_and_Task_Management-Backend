@@ -13,6 +13,15 @@ namespace Project___Task_Management_Backend.Interfaces
         // to upload file to project
         Task<Doc?> GetFileByIdAsync(int fileId);
         Task<bool> SaveChangesAsync();
+
+        // user project
+        Task<bool> ExistsAsync(int userId, int projectId);
+        Task<UserProject?> GetMappingAsync(int userId, int projectId);
+        Task<List<User>> GetUsersByProjectAsync(int projectId);
+        Task<List<Project>> GetProjectsByUserAsync(int userId);
+
+        Task<UserProject?> RemoveMappingAsync(int userId, int projectId);
+        Task<bool> AddUserToProject(int userId, int projectId);
     }
 }
 

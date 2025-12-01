@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Project___Task_Management_Backend.DTO.UserDtos;
+using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Interfaces;
 
 namespace Project___Task_Management_Backend.Controllers
@@ -93,6 +94,13 @@ namespace Project___Task_Management_Backend.Controllers
             if (!success) return BadRequest(new { message });
 
             return Ok(new { message });
+        }
+
+        [HttpGet("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            List<User> list = _svc.GetAll();
+            return await Task.FromResult(Ok(list));
         }
     }
 }

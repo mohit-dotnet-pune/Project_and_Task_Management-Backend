@@ -13,7 +13,13 @@ namespace Project___Task_Management_Backend.Interfaces
 
         // for file attach
         Task<(bool IsSuccess, string Message)> AttachFileToProjectAsync(int projectId, int fileId);
+        Task<(bool IsSuccess, string Message)> DettachFileToProjectAsync(int projectId, int fileId);
 
+        // for userProject
+        Task<(bool IsSuccess, string Message)> AddUserToProjectAsync(int userId, int projectId);
+        Task<(bool IsSuccess, string Message)> RemoveUserFromProjectAsync(int userId, int projectId);
+        Task<List<User>> GetUsersByProjectAsync(int projectId);
+        Task<List<Project>> GetProjectsByUserAsync(int userId);
     }
 }
 

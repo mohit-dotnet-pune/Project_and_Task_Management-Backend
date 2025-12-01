@@ -76,5 +76,54 @@ namespace Project___Task_Management_Backend.Services
 
             return (true, "File attached to project successfully");
         }
+
+        public async Task<(bool IsSuccess, string Message)> DettachFileToProjectAsync(int projectId, int fileId)
+        {
+            var project = await _repo.GetProjectById(projectId);
+            if (project == null)
+                return (false, "Project not found");
+
+            var file = await _repo.GetFileByIdAsync(fileId);
+            if (file == null)
+                return (false, "File not found");
+
+            // unLink file
+            project.fileId = null;
+            project.file = null;
+
+            bool result = await _repo.SaveChangesAsync();
+            if (!result)
+                return (false, "Failed to dettach file to project");
+
+            return (true, "File dettached to project successfully");
+        }
+
+
+        // userProject
+        public async Task<(bool IsSuccess, string Message)> AddUserToProjectAsync(int userId, int projectId)
+        {
+            bool result = await _repo.AddUserToProject(userId, projectId);
+            if (result) return (true, "user added to project successfully");
+            else return (false, "user id or project id not correct");
+        }
+
+        public async Task<(bool IsSuccess, string Message)> RemoveUserFromProjectAsync(int userId, int projectId)
+        {
+            var ans = await _repo.RemoveMappingAsync(userId, projectId);
+            if (ans == null) return (false, "user id or project id is not correct");
+            return (true, "user removed from project successfully");
+            
+        }
+
+        public async Task<List<User>> GetUsersByProjectAsync(int projectId)
+        {
+            return await _repo.GetUsersByProjectAsync(projectId);
+        }
+
+        public async Task<List<Project>> GetProjectsByUserAsync(int userId)
+        {
+            return await _repo.GetProjectsByUserAsync(userId);
+        }
+
     }
 }
