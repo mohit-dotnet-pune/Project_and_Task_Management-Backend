@@ -220,6 +220,13 @@ namespace Project___Task_Management_Backend.Services
 
             return (true, "Tasks status updated successfully!");
         }
+        public async Task<List<ProjectTask>> GetTasksForProjectAsync(int projectId)
+        {
+            var project = await _projectRepo.GetProjectById(projectId);
+            if (project == null) return null;
+
+            return await _repo.GetTasksByProjectId(projectId);
+        }
 
 
     }

@@ -21,6 +21,8 @@ namespace Project___Task_Management_Backend.Interfaces
 
         Task<(bool IsSuccess, string Message)> UpdateTasksStatusAsync(UpdateTasksStatusDto dto);
 
+        Task<List<ProjectTask>> GetTasksForProjectAsync(int projectId);
+
     }
 
 }
