@@ -1,5 +1,8 @@
 ﻿
 
+
+
+
 using System.Net;
 using System.Net.Mail;
 
@@ -13,15 +16,14 @@ namespace Project___Task_Management_Backend.Helpers
         private readonly int _port;
         private readonly bool _enableSsl;
 
-        public EmailHelper(IConfiguration config)
+        public EmailHelper()
         {
-            var section = config.GetSection("EmailSettings");
-
-            _fromEmail = section.GetValue<string>("FromEmail");
-            _password = section.GetValue<string>("Password");   
-            _smtpHost = section.GetValue<string>("SmtpHost");
-            _port = section.GetValue<int>("Port");
-            _enableSsl = section.GetValue<bool>("EnableSsl");
+            // Read values directly from .env
+            _fromEmail = Environment.GetEnvironmentVariable("EMAIL_FROM");
+            _password = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
+            _smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST");
+            _port = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? "587");
+            _enableSsl = bool.Parse(Environment.GetEnvironmentVariable("ENABLE_SSL") ?? "true");
         }
 
         public bool Send(string toEmail, string subject, string message)
@@ -30,7 +32,7 @@ namespace Project___Task_Management_Backend.Helpers
             {
                 var mail = new MailMessage
                 {
-                    From = new MailAddress(_fromEmail, "Project & Task Management"),  
+                    From = new MailAddress(_fromEmail, "Project & Task Management"),
                     Subject = subject,
                     Body = message,
                     IsBodyHtml = true
@@ -45,6 +47,7 @@ namespace Project___Task_Management_Backend.Helpers
                 };
 
                 smtp.Send(mail);
+
                 return true;
             }
             catch (Exception ex)
@@ -55,3 +58,4 @@ namespace Project___Task_Management_Backend.Helpers
         }
     }
 }
+
