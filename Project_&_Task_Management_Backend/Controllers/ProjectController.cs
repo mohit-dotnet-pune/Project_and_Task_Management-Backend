@@ -105,18 +105,18 @@ namespace Project___Task_Management_Backend.Controllers
         public async Task<IActionResult> AddUser(int userId, int projectId)
         {
             var result = await _service.AddUserToProjectAsync(userId, projectId);
-            if (!result) return BadRequest("User already added or failed.");
+            if (!result.IsSuccess) return BadRequest(result);
 
-            return Ok("User assigned to project.");
+            return Ok(result);
         }
 
         [HttpDelete("removeUserFromProject")]
         public async Task<IActionResult> RemoveUser(int userId, int projectId)
         {
             var result = await _service.RemoveUserFromProjectAsync(userId, projectId);
-            if (!result) return NotFound("User not assigned to this project.");
+            if (!result.IsSuccess) return NotFound(result);
 
-            return Ok("User removed from project.");
+            return Ok(result);
         }
 
         [HttpGet("{projectId}/GetAllusers")]

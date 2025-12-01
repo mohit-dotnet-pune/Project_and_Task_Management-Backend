@@ -7,16 +7,18 @@ namespace Project___Task_Management_Backend.Interfaces
     {
         Task<ProjectTask?> CreateTaskAsync(CreateTaskDto dto);
         Task<ProjectTask?> UpdateTaskAsync(int id, UpdateTaskDto dto);
-        Task<bool> DeleteTaskAsync(int id);
+        Task<(bool IsSuccess, string Message)> DeleteTaskAsync(int id);
         Task<ProjectTask?> GetTaskByIdAsync(int id);
 
         // Special APIs
-        Task<bool> AttachUserAsync(int taskId, int userId);
-        Task<bool> DetachUserAsync(int taskId);
+        Task<(bool IsSuccess, string Message)> AttachUserAsync(int taskId, int userId);
+        Task<(bool IsSuccess, string Message)> DetachUserAsync(int taskId);
 
-        Task<bool> AttachFileAsync(int taskId, int fileId);
-        Task<bool> DetachFileAsync(int taskId);
+        Task<(bool IsSuccess, string Message)> AttachFileAsync(int taskId, int fileId);
+        Task<(bool IsSuccess, string Message)> DetachFileAsync(int taskId);
         List<ProjectTask> GetAll();
+        List<ProjectTask> GetAllTasks(int userId);
+
     }
 
 }

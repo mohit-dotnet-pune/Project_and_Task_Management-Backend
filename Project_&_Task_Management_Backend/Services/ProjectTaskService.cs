@@ -81,14 +81,14 @@ namespace Project___Task_Management_Backend.Services
             return task;
         }
 
-        public async Task<bool> DeleteTaskAsync(int id)
+        public async Task<(bool IsSuccess, string Message)> DeleteTaskAsync(int id)
         {
             var task = await _appDbContext.tasks.FindAsync(id);
-            if (task == null) return false;
+            if (task == null) return (false, $"Task is not present with id {id}");
 
             _appDbContext.tasks.Remove(task);
             await _appDbContext.SaveChangesAsync();
-            return true;
+            return (true, "Task deleted successfully!");
         }
 
         public async Task<ProjectTask?> GetTaskByIdAsync(int id)
@@ -101,13 +101,13 @@ namespace Project___Task_Management_Backend.Services
             return _repo.GetAll();
         }
 
-        public async Task<bool> AttachUserAsync(int taskId, int userId)
+        public async Task<(bool IsSuccess, string Message)> AttachUserAsync(int taskId, int userId)
         {
             var task = await _appDbContext.tasks.FindAsync(taskId);
-            if (task == null) return false;
+            if (task == null) return (false, $"Task is not present with id {taskId}");
 
             var user = await _appDbContext.users.FindAsync(userId);
-            if (user == null) return false;
+            if (user == null) return (false, $"User is not present with id {userId}");
 
             task.userId = userId;
             task.user = user;
@@ -122,13 +122,13 @@ namespace Project___Task_Management_Backend.Services
 
             await _notifier.SendToUserAsync(userId.ToString(), msg);
 
-            return true;
+            return (true, $"Task {task.taskTitle} is assigned to user {user.userName}"); ;
         }
 
-        public async Task<bool> DetachUserAsync(int taskId)
+        public async Task<(bool IsSuccess, string Message)> DetachUserAsync(int taskId)
         {
             var task = await _appDbContext.tasks.FindAsync(taskId);
-            if (task == null) return false;
+            if (task == null) return (false, $"Task is not present with id {taskId}");;
 
             var msg = new NotificationMessage
             {
@@ -144,36 +144,41 @@ namespace Project___Task_Management_Backend.Services
             await _appDbContext.SaveChangesAsync();
 
        
-            return true;
+            return (true, $"Task {task.taskTitle} is  Removed from user");
         }
 
-        public async Task<bool> AttachFileAsync(int taskId, int fileId)
+        public async Task<(bool IsSuccess, string Message)> AttachFileAsync(int taskId, int fileId)
         {
             var task = await _appDbContext.tasks.FindAsync(taskId);
-            if (task == null) return false;
+            if (task == null) return (false, $"Task {task.taskTitle} is not present");
 
             var file = await _appDbContext.docs.FindAsync(fileId);
-            if (file == null) return false;
+            if (file == null) return (false, $"file not present with file id {fileId}");
 
             task.fileId = fileId;
             task.file = file;
             
             await _appDbContext.SaveChangesAsync();
-            return true;
-            
+            return (true, $"File {file.fileName} is attached to taks {task.taskTitle}");
+
         }
 
-        public async Task<bool> DetachFileAsync(int taskId)
+        public async Task<(bool IsSuccess, string Message)> DetachFileAsync(int taskId)
         {
             var task = await _appDbContext.tasks.FindAsync(taskId);
-            if (task == null) return false;
+            if (task == null) return (false, $"Task {task.taskTitle} is not present");
 
 
             task.fileId = null;
             task.file = null;
 
             await _appDbContext.SaveChangesAsync();
-            return true;
+            return (true, $"File  is dettached from taks {task.taskTitle}");
+        }
+
+        public List<ProjectTask> GetAllTasks(int userId)
+        {
+            return _appDbContext.tasks.Where(t => t.userId == userId).ToList();
         }
 
     }

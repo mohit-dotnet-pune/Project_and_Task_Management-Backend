@@ -16,8 +16,8 @@ namespace Project___Task_Management_Backend.Interfaces
         Task<(bool IsSuccess, string Message)> DettachFileToProjectAsync(int projectId, int fileId);
 
         // for userProject
-        Task<bool> AddUserToProjectAsync(int userId, int projectId);
-        Task<bool> RemoveUserFromProjectAsync(int userId, int projectId);
+        Task<(bool IsSuccess, string Message)> AddUserToProjectAsync(int userId, int projectId);
+        Task<(bool IsSuccess, string Message)> RemoveUserFromProjectAsync(int userId, int projectId);
         Task<List<User>> GetUsersByProjectAsync(int projectId);
         Task<List<Project>> GetProjectsByUserAsync(int userId);
     }

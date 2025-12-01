@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Project___Task_Management_Backend.DTO.ProjectTaskDtos;
 using Project___Task_Management_Backend.Interfaces;
+using Project___Task_Management_Backend.Models;
 
 namespace Project___Task_Management_Backend.Controllers
 {
@@ -38,7 +39,9 @@ namespace Project___Task_Management_Backend.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _service.DeleteTaskAsync(id);
-            return result ? Ok() : NotFound();
+            if(!result.IsSuccess) return NotFound(result);
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
@@ -77,7 +80,12 @@ namespace Project___Task_Management_Backend.Controllers
         public async Task<IActionResult> DetachFile(int taskId)
             => Ok(await _service.DetachFileAsync(taskId));
 
-
+        [HttpGet("getAllTask/{userId}")]
+        public IActionResult GetAllTaskOfUser(int userId)
+        {
+            List<ProjectTask> tasks = _service.GetAllTasks(userId);
+            return Ok(tasks);
+        }
     }
 
 }
