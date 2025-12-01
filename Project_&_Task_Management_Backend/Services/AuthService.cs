@@ -22,6 +22,8 @@ namespace Project___Task_Management_Backend.Services
     public class AuthService : IAuthService
 
     {
+        private static Dictionary<string, RegisterDto> tempRegisterData = new();
+        private static Dictionary<string, (string Otp, DateTime Expiry)> tempOtps = new();
 
         private readonly AppDbContext _db;
 
@@ -53,101 +55,122 @@ namespace Project___Task_Management_Backend.Services
 
             return string.Concat(Enumerable.Range(0, length).Select(_ => rnd.Next(0, 10)));
 
-        } 
+        }
 
-        // ----------------------------------------------------------------------
-
-        // REGISTER
-
-        // ----------------------------------------------------------------------
 
         public async Task<(bool Success, string Message)> RegisterAsync(RegisterDto dto)
         {
-            var exists = await _db.users.AnyAsync(u => u.userEmail == dto.Email || u.userName == dto.Username);
-            if (exists)
-                return (false, "Email or Username already in use.");
+            // Validate role
+            if (!Enum.TryParse<Role>(dto.Role, true, out Role selectedRole))
+                return (false, "Invalid role. Allowed roles: Employee, Manager.");
 
-            // Only allow roles from enum
-            if (string.IsNullOrWhiteSpace(dto.Role) || !Enum.TryParse<Role>(dto.Role, true, out Role selectedRole))
+            // Check if email already registered in DB
+            if (await _db.users.AnyAsync(u => u.userEmail == dto.Email))
+                return (false, "User already exists.");
+
+            // Store temporarily (override previous)
+            tempRegisterData[dto.Email] = dto;
+
+            return (true, "Registration details saved. Please request OTP using /get-otp.");
+        }
+
+        public async Task<(bool Success, string Message)> GetOtpAsync(GetOtpDto dto)
+        {
+            if (string.IsNullOrEmpty(dto.Email))
+                return (false, "Email is required.");
+
+            string email = dto.Email.ToLower();
+
+            // 1️⃣ Check if user exists in DB
+            var existingUser = await _db.users.FirstOrDefaultAsync(u => u.userEmail.ToLower() == email);
+
+            // 2️⃣ Check temp registration if not in DB
+            if (existingUser == null && !tempRegisterData.ContainsKey(email))
+                return (false, "No registration found. Please register first.");
+
+            // 3️⃣ If user exists and email is already verified
+            if (existingUser != null && existingUser.EmailConfirmed && !dto.ForceSend)
+                return (false, "Email already verified. Set ForceSend=true to resend OTP.");
+
+            // 4️⃣ Generate OTP
+            var otp = GenerateOtp();
+            tempOtps[email] = (otp, DateTime.UtcNow.AddMinutes(10));
+
+            // 5️⃣ Send OTP
+            _emailHelper.Send(email, "Your OTP Code", $"Your OTP is: {otp}");
+
+            return (true, existingUser != null ? "OTP sent successfully." : "OTP sent for pending registration.");
+        }
+
+
+
+
+
+
+
+
+
+        public async Task<(bool Success, string Message)> VerifyEmailOtpAsync(VerifyEmailOtpDto dto)
+        {
+            var email = dto.Email;
+
+            // 1️⃣ Check if user exists
+            var existingUser = await _db.users.FirstOrDefaultAsync(u => u.userEmail == email);
+
+            if (existingUser != null && existingUser.EmailConfirmed)
+                return (false, "Email is already verified.");
+
+            // 2️⃣ Check OTP exists
+            if (!tempOtps.ContainsKey(email))
+                return (false, "Please request OTP first.");
+
+            var (otp, expiry) = tempOtps[email];
+
+            if (expiry < DateTime.UtcNow)
+                return (false, "OTP expired.");
+
+            if (otp != dto.Otp)
+                return (false, "Invalid OTP.");
+
+            // 3️⃣ If user exists but not verified → mark verified
+            if (existingUser != null)
             {
-                return (false, "Invalid role. Allowed roles are Employee or Manager.");
+                existingUser.EmailConfirmed = true;
+                await _db.SaveChangesAsync();
+
+                _emailHelper.Send(email, "Email Verified!", "Your email has been successfully verified.");
+
+                tempOtps.Remove(email);
+                return (true, "Email verified successfully.");
             }
+
+            // 4️⃣ If user not in DB → register from temp data
+            var regData = tempRegisterData[email];
+            Enum.TryParse<Role>(regData.Role, true, out Role role);
 
             var user = new User
             {
-                userEmail = dto.Email,
-                userName = dto.Username,
-                userRole = selectedRole
+                userName = regData.Username,
+                userEmail = regData.Email,
+                userRole = role,
+                userPassword = _passwordHasher.HashPassword(null, regData.Password),
+                EmailConfirmed = true
             };
-
-            user.userPassword = _passwordHasher.HashPassword(user, dto.Password);
-
-            // Generate OTP
-            var otp = GenerateOtp(6);
-            user.EmailOtp = otp;
-            user.EmailOtpExpiry = DateTime.UtcNow.AddMinutes(15);
 
             await _db.users.AddAsync(user);
             await _db.SaveChangesAsync();
 
-            // Email message
-            var subject = "Welcome to Project & Task Management - Verify your email";
-            var message = $"Hello {user.userName},<br/><br/>" +
-                          $"Welcome to Project & Task Management!<br/>" +
-                          $"Your verification OTP is <b>{otp}</b>.<br/><br/>" +
-                          "Please use this OTP to verify your email within 15 minutes.";
+            tempOtps.Remove(email);
+            tempRegisterData.Remove(email);
 
-            var sent = _emailHelper.Send(user.userEmail, subject, message);
-            if (!sent)
-                return (false, "User registered but failed to send OTP email.");
+            _emailHelper.Send(email, "Email Verified!", "Your email has been successfully verified.");
 
-            return (true, "User registered. Please verify your email.");
+            return (true, "Email verified and user registered successfully!");
         }
 
 
 
-        // ----------------------------------------------------------------------
 
-        // VERIFY EMAIL OTP
-
-        // ----------------------------------------------------------------------
-
-        public async Task<(bool Success, string Message)> VerifyEmailOtpAsync(VerifyEmailOtpDto dto)
-        {
-            var user = await _db.users.FirstOrDefaultAsync(u => u.userEmail == dto.Email);
-
-            if (user == null)
-                return (false, "User not found.");
-
-            if (user.EmailConfirmed)
-                return (false, "Email already verified.");
-
-            if (user.EmailOtpExpiry == null || user.EmailOtpExpiry < DateTime.UtcNow)
-                return (false, "OTP expired.");
-
-            if (user.EmailOtp != dto.Otp)
-                return (false, "Invalid OTP.");
-
-            // Mark user as verified
-            user.EmailConfirmed = true;
-            user.EmailOtp = null;
-            user.EmailOtpExpiry = null;
-
-            _db.users.Update(user);
-            await _db.SaveChangesAsync();
-
-            // Send verification success email
-            var subject = "Your Email is Successfully Verified - Project & Task Management";
-            var message = $"Hello {user.userName},<br/><br/>" +
-                          $"🎉 Your email has been successfully verified!<br/><br/>" +
-                          $"You can now log in and start using the Project & Task Management system.<br/><br/>" +
-                          $"Thank you for joining us!<br/><br/>" +
-                          $"Regards,<br/>Project & Task Management Team";
-
-            _emailHelper.Send(user.userEmail, subject, message);
-
-            return (true, "Email verified successfully.");
-        }
 
         // ----------------------------------------------------------------------
 
@@ -155,7 +178,7 @@ namespace Project___Task_Management_Backend.Services
 
         // ----------------------------------------------------------------------
 
-        public async Task<(bool Success, string Token, string Message)> LoginAsync(LoginDto dto)
+        public async Task<(bool Success, UserResponseDto User, string Message)> LoginAsync(LoginDto dto)
         {
             // 1️⃣ Check if user exists
             var user = await _db.users.FirstOrDefaultAsync(u => u.userEmail == dto.Email);
@@ -165,7 +188,7 @@ namespace Project___Task_Management_Backend.Services
 
             // 2️⃣ Check email verification
             if (!user.EmailConfirmed)
-                return (false, null, "Email not verified.");
+                return (false, null, "Please verify your email before logging in.");
 
             // 3️⃣ Validate password
             var verify = _passwordHasher.VerifyHashedPassword(user, user.userPassword, dto.Password);
@@ -173,23 +196,38 @@ namespace Project___Task_Management_Backend.Services
             if (verify == PasswordVerificationResult.Failed)
                 return (false, null, "Invalid credentials.");
 
-            // 4️⃣ Create JWT
+            // 4️⃣ Generate JWT
             var token = GenerateJwtToken(user);
 
             // 5️⃣ Save JWT in database
             user.JwtToken = token;
             user.JwtTokenExpiry = DateTime.UtcNow.AddMinutes(_config.GetValue<int>("Jwt:ExpiryMinutes"));
 
-            // 6️⃣ Generate Refresh Token
+            // 6️⃣ Refresh Token
             user.RefreshToken = Guid.NewGuid().ToString("N");
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
             _db.users.Update(user);
             await _db.SaveChangesAsync();
 
-            // 7️⃣ Successful login
-            return (true, token, "Login successful.");
+            // 7️⃣ Prepare sanitized user response
+            var responseUser = new UserResponseDto
+            {
+                userId = user.userId,
+                userName = user.userName,
+                userEmail = user.userEmail,
+                userRole = user.userRole,
+                EmailConfirmed = user.EmailConfirmed,
+                JwtToken = user.JwtToken,
+                JwtTokenExpiry = (DateTime)user.JwtTokenExpiry,
+                RefreshToken = user.RefreshToken,
+                RefreshTokenExpiry = (DateTime)user.RefreshTokenExpiry
+            };
+
+            // 8️⃣ Return response
+            return (true, responseUser, "Login successful.");
         }
+
 
 
         private string GenerateJwtToken(User user)
