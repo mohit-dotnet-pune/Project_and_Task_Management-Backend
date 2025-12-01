@@ -181,6 +181,47 @@ namespace Project___Task_Management_Backend.Services
             return _appDbContext.tasks.Where(t => t.userId == userId).ToList();
         }
 
+        public async Task<(bool IsSuccess, string Message)> UpdateTasksStatusAsync(UpdateTasksStatusDto dto)
+        {
+            // Update TODO tasks
+            if (dto.TodoTaskidUpdate != null)
+            {
+                foreach (var id in dto.TodoTaskidUpdate)
+                {
+                    var task = await _appDbContext.tasks.FindAsync(id);
+                    if (task != null)
+                        task.taskStatus = Status.Todo;
+                }
+            }
+
+            // Update INPROGRESS tasks
+            if (dto.InProgressTaskidUpdate != null)
+            {
+                foreach (var id in dto.InProgressTaskidUpdate)
+                {
+                    var task = await _appDbContext.tasks.FindAsync(id);
+                    if (task != null)
+                        task.taskStatus = Status.Inprogress;
+                }
+            }
+
+            // Update DONE tasks
+            if (dto.DoneTaskidUpdate != null)
+            {
+                foreach (var id in dto.DoneTaskidUpdate)
+                {
+                    var task = await _appDbContext.tasks.FindAsync(id);
+                    if (task != null)
+                        task.taskStatus = Status.Done;
+                }
+            }
+
+            await _appDbContext.SaveChangesAsync();
+
+            return (true, "Tasks status updated successfully!");
+        }
+
+
     }
 
 }

@@ -86,6 +86,19 @@ namespace Project___Task_Management_Backend.Controllers
             List<ProjectTask> tasks = _service.GetAllTasks(userId);
             return Ok(tasks);
         }
+
+
+        [HttpPost("update-tasks-status")]
+        public async Task<IActionResult> UpdateTasksStatus(UpdateTasksStatusDto dto)
+        {
+            var result = await _service.UpdateTasksStatusAsync(dto);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
     }
 
 }
