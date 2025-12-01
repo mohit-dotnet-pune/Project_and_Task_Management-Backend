@@ -43,7 +43,12 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<EmailHelper>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// SWAGGER
+//Activity configuration
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
+builder.Services.AddScoped<ActivityService>();
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
