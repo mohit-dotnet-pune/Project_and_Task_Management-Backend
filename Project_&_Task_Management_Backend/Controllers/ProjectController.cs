@@ -77,5 +77,58 @@ namespace Project___Task_Management_Backend.Controllers
                 fileId = fileId
             });
         }
+
+        [HttpPut("{projectId}/detach-file/{fileId}")]
+        public async Task<IActionResult> DettachFileToProject(int projectId, int fileId)
+        {
+            var result = await _service.DettachFileToProjectAsync(projectId, fileId);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = result.Message
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                message = result.Message,
+                projectId = projectId,
+                fileId = fileId
+            });
+        }
+
+        [HttpPost("addUserToProject")]
+        public async Task<IActionResult> AddUser(int userId, int projectId)
+        {
+            var result = await _service.AddUserToProjectAsync(userId, projectId);
+            if (!result) return BadRequest("User already added or failed.");
+
+            return Ok("User assigned to project.");
+        }
+
+        [HttpDelete("removeUserFromProject")]
+        public async Task<IActionResult> RemoveUser(int userId, int projectId)
+        {
+            var result = await _service.RemoveUserFromProjectAsync(userId, projectId);
+            if (!result) return NotFound("User not assigned to this project.");
+
+            return Ok("User removed from project.");
+        }
+
+        [HttpGet("{projectId}/GetAllusers")]
+        public async Task<IActionResult> Users(int projectId)
+        {
+            return Ok(await _service.GetUsersByProjectAsync(projectId));
+        }
+
+        [HttpGet("{userId}/GetAllprojects")]
+        public async Task<IActionResult> Projects(int userId)
+        {
+            return Ok(await _service.GetProjectsByUserAsync(userId));
+        }
     }
 }

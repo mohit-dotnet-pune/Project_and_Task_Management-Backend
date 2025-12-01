@@ -1,93 +1,57 @@
-﻿using System.Net;
+﻿
 
+using System.Net;
 using System.Net.Mail;
 
 namespace Project___Task_Management_Backend.Helpers
 {
-
     public class EmailHelper
-
     {
-
-        private readonly string FromEmail;
-
-        private readonly string Password;
-
-        private readonly string SmtpHost;
-
-        private readonly int Port;
-
-        private readonly bool EnableSsl;
+        private readonly string _fromEmail;
+        private readonly string _password;
+        private readonly string _smtpHost;
+        private readonly int _port;
+        private readonly bool _enableSsl;
 
         public EmailHelper(IConfiguration config)
-
         {
-
             var section = config.GetSection("EmailSettings");
 
-            FromEmail = section.GetValue<string>("FromEmail");
-
-            Password = section.GetValue<string>("Password");
-
-            SmtpHost = section.GetValue<string>("SmtpHost");
-
-            Port = section.GetValue<int>("Port");
-
-            EnableSsl = section.GetValue<bool>("EnableSsl");
-
+            _fromEmail = section.GetValue<string>("FromEmail");
+            _password = section.GetValue<string>("Password");   
+            _smtpHost = section.GetValue<string>("SmtpHost");
+            _port = section.GetValue<int>("Port");
+            _enableSsl = section.GetValue<bool>("EnableSsl");
         }
 
         public bool Send(string toEmail, string subject, string message)
-
         {
-
             try
-
             {
-
-                var smtp = new SmtpClient(SmtpHost)
-
+                var mail = new MailMessage
                 {
-
-                    Port = Port,
-
-                    Credentials = new NetworkCredential(FromEmail, Password),
-
-                    EnableSsl = EnableSsl
-
+                    From = new MailAddress(_fromEmail, "Project & Task Management"),  
+                    Subject = subject,
+                    Body = message,
+                    IsBodyHtml = true
                 };
 
-                var mail = new MailMessage(FromEmail, toEmail)
+                mail.To.Add(toEmail);
 
+                var smtp = new SmtpClient(_smtpHost, _port)
                 {
-
-                    Subject = subject,
-
-                    Body = message,
-
-                    IsBodyHtml = true
-
+                    Credentials = new NetworkCredential(_fromEmail, _password),
+                    EnableSsl = _enableSsl
                 };
 
                 smtp.Send(mail);
-
                 return true;
-
             }
-
-            catch
-
+            catch (Exception ex)
             {
-
+                Console.WriteLine("Email Error: " + ex.Message);
                 return false;
-
             }
-
         }
-
     }
-
 }
-
-
- 
