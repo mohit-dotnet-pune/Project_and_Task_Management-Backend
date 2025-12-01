@@ -8,7 +8,7 @@ namespace Project___Task_Management_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class FileController : ControllerBase
     {
         private readonly AppDbContext _context;

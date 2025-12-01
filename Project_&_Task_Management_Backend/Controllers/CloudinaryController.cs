@@ -11,7 +11,7 @@ using Project___Task_Management_Backend.Services;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class FileController : ControllerBase
 {
     private readonly CloudinaryService _cloudinaryService;
