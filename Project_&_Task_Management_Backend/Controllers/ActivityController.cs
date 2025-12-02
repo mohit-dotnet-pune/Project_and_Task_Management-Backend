@@ -39,14 +39,14 @@ namespace Project___Task_Management_Backend.Controllers
         // --------------------------------------------------
         // 2. Get Activities by Entity Type & ProjectId
         // --------------------------------------------------
-        [HttpGet("entity")]
-        public async Task<IActionResult> GetByEntity(
-            [FromQuery] EntityType type,
-            [FromQuery] int projectId)
-        {
-            var activities = await _activityService.GetActivityByProjectId(type, projectId);
-            return Ok(activities);
-        }
+        //[HttpGet("entity")]
+        //public async Task<IActionResult> GetByEntity(
+        //    [FromQuery] EntityType type,
+        //    [FromQuery] int projectId)
+        //{
+        //    var activities = await _activityService.GetActivityByProjectId(type, projectId);
+        //    return Ok(activities);
+        //}
 
         // --------------------------------------------------
         // 3. Get All Activities of a User
@@ -65,6 +65,13 @@ namespace Project___Task_Management_Backend.Controllers
         public async Task<IActionResult> GetAll()
         {
             var activities = await _activityService.GetAllActivities();
+            return Ok(activities);
+        }
+
+        [HttpGet("project/{projectId}/activities")]
+        public async Task<IActionResult> GetActivitiesByProject(int projectId)
+        {
+            var activities = await _activityService.GetActivitiesByProjectId(projectId);
             return Ok(activities);
         }
     }

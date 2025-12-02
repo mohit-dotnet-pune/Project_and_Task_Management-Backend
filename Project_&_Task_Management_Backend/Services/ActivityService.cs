@@ -29,20 +29,20 @@ namespace Project___Task_Management_Backend.Services
         }
 
 
-        public async Task<IEnumerable<ActivityResponseDto>> GetActivityByProjectId(EntityType entityType, int projectId)
-        {
-            var data = await _repo.GetByEntityAsync(entityType, projectId);
+        //public async Task<IEnumerable<ActivityResponseDto>> GetActivityByProjectId(EntityType entityType, int projectId)
+        //{
+        //    var data = await _repo.GetByEntityAsync(entityType, projectId);
 
-            return data.Select(a => new ActivityResponseDto
-            {
-                activityId = a.activityId,
-                userId = a.userId,
-                activityDescription = a.activityDescription,
-                activityEntityType = a.activityEntityType,
-                activityEntityId = a.activityEntityId,
-                activityCreatedAt = a.activityCreatedAt
-            });
-        }
+        //    return data.Select(a => new ActivityResponseDto
+        //    {
+        //        activityId = a.activityId,
+        //        userId = a.userId,
+        //        activityDescription = a.activityDescription,
+        //        activityEntityType = a.activityEntityType,
+        //        activityEntityId = a.activityEntityId,
+        //        activityCreatedAt = a.activityCreatedAt
+        //    });
+        //}
 
         public async Task<IEnumerable<ActivityResponseDto>> GetUserActivity(int userId)
         {
@@ -73,5 +73,21 @@ namespace Project___Task_Management_Backend.Services
                 projectId = a.projectId,
             });
         }
+
+        public async Task<IEnumerable<ActivityResponseDto>> GetActivitiesByProjectId(int projectId)
+        {
+            var data = await _repo.GetByProjectIdAsync(projectId);
+
+            return data.Select(a => new ActivityResponseDto
+            {
+                activityId = a.activityId,
+                userId = a.userId,
+                activityDescription = a.activityDescription,
+                activityEntityType = a.activityEntityType,
+                activityEntityId = a.activityEntityId,
+                activityCreatedAt = a.activityCreatedAt
+            });
+        }
+
     }
 }

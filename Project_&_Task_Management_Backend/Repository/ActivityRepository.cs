@@ -43,6 +43,13 @@ namespace Project___Task_Management_Backend.Repository
                     .OrderByDescending(a => a.activityCreatedAt)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Activity>> GetByProjectIdAsync(int projectId)
+        {
+            return await _context.activities
+                .Where(a => a.projectId == projectId)
+                .OrderByDescending(a => a.activityCreatedAt)
+                .ToListAsync();
+        }
 
     }
 }
