@@ -36,7 +36,7 @@ namespace Project___Task_Management_Backend.Controllers
         // CREATE COMMENT
         // ------------------------------------------------------
         [HttpPost]
-        public async Task<IActionResult> Create(CreateCommentDto dto)
+        public async Task<IActionResult> Create([FromForm] CreateCommentDto dto)
         {
             var userId = GetUserId();
 
@@ -111,7 +111,7 @@ namespace Project___Task_Management_Backend.Controllers
         // UPDATE COMMENT
         // ------------------------------------------------------
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateCommentDto dto)
+        public async Task<IActionResult> Update(int id, [FromForm] UpdateCommentDto dto)
         {
             var userId = GetUserId();
 

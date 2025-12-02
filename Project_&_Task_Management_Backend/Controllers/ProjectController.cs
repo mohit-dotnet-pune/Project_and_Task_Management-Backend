@@ -57,6 +57,19 @@ namespace Project___Task_Management_Backend.Controllers
             if (!result.IsSuccess)
                 return BadRequest(new { success = false, message = result.Message });
 
+            var userId = GetUserId();
+
+            
+
+            await _activityService.LogAsync(new CreateActivityDto
+            {
+                userId = userId,
+                projectId = result.Data.projectId,
+                activityDescription = "Project created",
+                activityEntityType = EntityType.Project,
+                activityEntityId = result.Data.projectId
+            });
+
             return Ok(new
             {
                 success = true,
@@ -87,7 +100,7 @@ namespace Project___Task_Management_Backend.Controllers
         // Update Project
         // ------------------------------------------------------
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProject(int id, [FromBody] UpdateProjectDto dto)
+        public async Task<IActionResult> UpdateProject(int id, [FromForm] UpdateProjectDto dto)
 
         {
             var userId = GetUserId();

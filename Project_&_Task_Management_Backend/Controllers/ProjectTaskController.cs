@@ -50,7 +50,7 @@ namespace Project___Task_Management_Backend.Controllers
         // Create Task
         // ----------------------
         [HttpPost]
-        public async Task<IActionResult> Create(CreateTaskDto dto)
+        public async Task<IActionResult> Create([FromForm]CreateTaskDto dto)
         {
             var task = await _service.CreateTaskAsync(dto);
             if (task == null) return BadRequest("Invalid project ID.");
@@ -73,7 +73,7 @@ namespace Project___Task_Management_Backend.Controllers
         // Update Task
         // ----------------------
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateTaskDto dto)
+        public async Task<IActionResult> Update(int id, [FromForm] UpdateTaskDto dto)
         {
             var task = await _service.UpdateTaskAsync(id, dto);
             if (task == null) return NotFound();

@@ -42,15 +42,22 @@ namespace Project___Task_Management_Backend.Services
             var project = await _projectRepo.GetProjectById(dto.projectId);
             if (project == null) return null;
 
-            UploadResponse result_doc = await _cloudinaryService.UploadFileAsync(dto.fileForm);
+            Doc? doc = null;
 
-            var doc = new Doc
+            // ⭐ Upload file only if a file is attached
+            if (dto.fileForm != null)
             {
-                fileName = result_doc.FileName,
-                fileURL = result_doc.FileUrl
-            };
-            _appDbContext.docs.Add(doc);
-            await _appDbContext.SaveChangesAsync();
+                UploadResponse result_doc = await _cloudinaryService.UploadFileAsync(dto.fileForm);
+
+                doc = new Doc
+                {
+                    fileName = result_doc.FileName,
+                    fileURL = result_doc.FileUrl
+                };
+
+                _appDbContext.docs.Add(doc);
+                await _appDbContext.SaveChangesAsync();
+            }
 
             var task = new ProjectTask
             {
@@ -61,7 +68,9 @@ namespace Project___Task_Management_Backend.Services
                 taskStatus = dto.taskStatus,
                 userId = dto.userId,
                 taskDueDate = dto.taskDueDate,
-                fileId = doc.fileId,
+
+                // Only apply file if it was uploaded
+                fileId = doc?.fileId,
                 file = doc
             };
 
@@ -71,47 +80,57 @@ namespace Project___Task_Management_Backend.Services
             return task;
         }
 
+
         public async Task<ProjectTask?> UpdateTaskAsync(int id, UpdateTaskDto dto)
         {
             var task = await _appDbContext.tasks.FindAsync(id);
             if (task == null) return null;
 
+            Doc? doc = null;
 
-            UploadResponse result_doc = await _cloudinaryService.UploadFileAsync(dto.formFile);
-
-            var doc = new Doc
+            // ⭐ Upload file only if a file was actually attached
+            if (dto.formFile != null)
             {
-                fileName = result_doc.FileName,
-                fileURL = result_doc.FileUrl
-            };
-            _appDbContext.docs.Add(doc);
-            await _appDbContext.SaveChangesAsync();
+                UploadResponse result_doc = await _cloudinaryService.UploadFileAsync(dto.formFile);
 
+                doc = new Doc
+                {
+                    fileName = result_doc.FileName,
+                    fileURL = result_doc.FileUrl
+                };
 
-            // send notification
+                _appDbContext.docs.Add(doc);
+                await _appDbContext.SaveChangesAsync();
+
+                // Update file reference only when a new file is uploaded
+                task.fileId = doc.fileId;
+                task.file = doc;
+            }
+
+            // 🔔 Send notification if status changed
             if (task.taskStatus != dto.taskStatus && task.userId != null)
             {
                 var msg = new NotificationMessage
                 {
                     Type = "taskStatusUpdated",
-                    Title = $"Task Status updated to {dto.taskStatus}",
-                    Body = $"Your task status is updated, {task.taskTitle},  (ID: {task.taskId})"
+                    Title = $"Task status updated to {dto.taskStatus}",
+                    Body = $"Your task '{task.taskTitle}' (ID: {task.taskId}) was updated"
                 };
 
                 await _notifier.SendToUserAsync(task.userId.ToString(), msg);
             }
 
+            // Update task fields
             task.taskTitle = dto.taskTitle;
             task.taskDescription = dto.taskDescription;
             task.taskPriority = dto.taskPriority;
             task.taskStatus = dto.taskStatus;
             task.taskDueDate = dto.taskDueDate;
-            task.fileId = doc.fileId;
-            task.file = doc;
 
             await _appDbContext.SaveChangesAsync();
             return task;
         }
+
 
         public async Task<(bool IsSuccess, string Message)> DeleteTaskAsync(int id)
         {

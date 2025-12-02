@@ -25,20 +25,22 @@ namespace Project___Task_Management_Backend.Services
         {
             try
             {
-                UploadResponse file_response = await _cloudinaryService.UploadFileAsync(dto.formFile);
-               
+                Doc? doc = null;
 
-                var doc = new Doc
+                // ⭐ Upload only when file is attached
+                if (dto.formFile != null)
                 {
-                    fileName = file_response.FileName,
-                    fileURL = file_response.FileUrl
-                };
+                    UploadResponse file_response = await _cloudinaryService.UploadFileAsync(dto.formFile);
 
-                _db.docs.Add(doc);
-                await _db.SaveChangesAsync();
+                    doc = new Doc
+                    {
+                        fileName = file_response.FileName,
+                        fileURL = file_response.FileUrl
+                    };
 
-                
-              
+                    _db.docs.Add(doc);
+                    await _db.SaveChangesAsync();
+                }
 
                 var project = new Project
                 {
@@ -47,27 +49,25 @@ namespace Project___Task_Management_Backend.Services
                     projectStartDate = dto.projectStartDate,
                     projectEndDate = dto.projectEndDate,
                     projectStatus = projStatus.ToDo,
-                    projectCreatedAt = DateTime.UtcNow
+                    projectCreatedAt = DateTime.UtcNow,
+                    file = doc,
+                    fileId = doc?.fileId  // ⭐ handles null safely
                 };
 
-                // 🔹 Create Project
+                // Create Project
                 var savedProject = await _repo.CreateProject(project);
                 if (savedProject == null)
                     return (false, "Failed to create project.", null);
 
-                // 🔥 MULTIPLE USER ATTACH HERE
+                // Add users
                 if (dto.UserIds != null && dto.UserIds.Count > 0)
                 {
-                    foreach (var userId in dto.UserIds.Distinct())  // avoid duplicates
+                    foreach (var userId in dto.UserIds.Distinct())
                     {
-                        bool added = await _repo.AddUserToProject(userId, savedProject.projectId);
-                        // ❌ skip if already exists — do not throw error
+                        await _repo.AddUserToProject(userId, savedProject.projectId);
                     }
                 }
 
-                savedProject.file = doc;
-                savedProject.fileId = doc.fileId;
-                await _repo.UpdateProject(savedProject);
                 return (true, "Project created successfully.", savedProject);
             }
             catch (Exception ex)
@@ -83,17 +83,26 @@ namespace Project___Task_Management_Backend.Services
             if (project == null)
                 return null;
 
-            UploadResponse file_response = await _cloudinaryService.UploadFileAsync(dto.formfile);
+            Doc? doc = null;
 
-
-            var doc = new Doc
+            // ⭐ Upload new file only if the user actually provided it
+            if (dto.formfile != null)
             {
-                fileName = file_response.FileName,
-                fileURL = file_response.FileUrl
-            };
+                UploadResponse file_response = await _cloudinaryService.UploadFileAsync(dto.formfile);
 
-            _db.docs.Add(doc);
-            await _db.SaveChangesAsync();
+                doc = new Doc
+                {
+                    fileName = file_response.FileName,
+                    fileURL = file_response.FileUrl
+                };
+
+                _db.docs.Add(doc);
+                await _db.SaveChangesAsync();
+
+                // Update only if file exists
+                project.fileId = doc.fileId;
+                project.file = doc;
+            }
 
             // 🔹 Validation
             if (dto.projectEndDate < dto.projectStartDate)
@@ -104,8 +113,6 @@ namespace Project___Task_Management_Backend.Services
             project.projectDescription = dto.projectDescription;
             project.projectStartDate = dto.projectStartDate;
             project.projectEndDate = dto.projectEndDate;
-            project.fileId = doc.fileId;
-            project.file = doc;
 
             // ===============================
             // UPDATE ASSIGNED USERS
@@ -128,6 +135,7 @@ namespace Project___Task_Management_Backend.Services
 
             return updatedProject;
         }
+
 
 
         public Task<Project?> GetProject(int id)
