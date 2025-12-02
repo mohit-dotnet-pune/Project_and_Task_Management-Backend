@@ -87,6 +87,15 @@ namespace Project___Task_Management_Backend.Services
             var list = await _commentRepo.GetCommentsByUserId(userId);
             return list;
         }
+
+        public async Task<int?> GetProjectIdByTask(int taskId)
+        {
+            return await _appDbContext.tasks
+                .Where(t => t.taskId == taskId)
+                .Select(t => (int?)t.projectId)
+                .FirstOrDefaultAsync();
+        }
+
     }
 
 }

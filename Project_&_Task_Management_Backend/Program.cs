@@ -118,7 +118,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();     // FIXED: Authentication MUST come before Authorization
-//app.UseMiddleware<JwtVerificationMiddleware>();
+app.UseMiddleware<JwtVerificationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

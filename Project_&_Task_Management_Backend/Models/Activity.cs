@@ -19,6 +19,8 @@ namespace Project___Task_Management_Backend.Models
         [ForeignKey("user")]
         [Required]
         public int userId { get; set; }
+        
+        public int? projectId { get; set; }
 
         [Required]
         public string activityDescription { get; set; }

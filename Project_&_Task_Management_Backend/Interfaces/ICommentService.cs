@@ -13,6 +13,8 @@ namespace Project___Task_Management_Backend.Interfaces
 
         Task<IEnumerable<Comment>> GetCommentsByTask(int taskId);
         Task<IEnumerable<Comment>> GetCommentsByUser(int userId);
+        Task<int?> GetProjectIdByTask(int taskId);
+
     }
 
 }

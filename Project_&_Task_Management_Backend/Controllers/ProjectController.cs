@@ -1,9 +1,9 @@
 ﻿using global::Project___Task_Management_Backend.DTO.ProjectDtos;
 using global::Project___Task_Management_Backend.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project___Task_Management_Backend.DTO;
+using Project___Task_Management_Backend.DTO.ActivityDtos;
+using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Services;
 
 namespace Project___Task_Management_Backend.Controllers
@@ -14,129 +14,220 @@ namespace Project___Task_Management_Backend.Controllers
     public class ProjectController : ControllerBase
     {
         private readonly IProjectService _service;
+        private readonly ActivityService _activityService;
 
-        public ProjectController(IProjectService service)
+        public ProjectController(IProjectService service, ActivityService activityService)
         {
             _service = service;
+            _activityService = activityService;
+        }
+        //fetch user Id from middleware
+        private int GetUserId()
+        {
+            if (HttpContext.Items["User"] is Dictionary<string, string> userClaims &&
+                userClaims.ContainsKey("userId"))
+            {
+                return int.Parse(userClaims["userId"]);
+            }
+
+            throw new Exception("User ID not found in token");
         }
 
+
+
+        // ------------------------------------------------------
+        // Create Project
+        // ------------------------------------------------------
         [HttpPost]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDto dto)
         {
+            var userId = GetUserId();
+
             var result = await _service.CreateProject(dto);
+
+            await _activityService.LogAsync(new CreateActivityDto
+            {
+                userId = userId,
+                projectId = result.projectId,
+                activityDescription = "Project created",
+                activityEntityType = EntityType.Project,
+                activityEntityId = result.projectId
+            });
+
             return Ok(result);
         }
 
+
+        // ------------------------------------------------------
+        // Get Project
+        // ------------------------------------------------------
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProject(int id)
         {
             var project = await _service.GetProject(id);
             if (project == null) return NotFound();
-            return Ok(project); // contains tasks also
+            return Ok(project);
         }
 
+        // ------------------------------------------------------
+        // Get All Projects
+        // ------------------------------------------------------
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var list = await _service.GetAllProjects();
-            return Ok(list);
+            return Ok(await _service.GetAllProjects());
         }
 
+        // ------------------------------------------------------
+        // Update Project
+        // ------------------------------------------------------
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProject(int id, UpdateProjectDto dto)
         {
+            var userId = GetUserId();
+
             var updated = await _service.UpdateProject(id, dto);
             if (updated == null) return NotFound();
+
+            await _activityService.LogAsync(new CreateActivityDto
+            {
+                userId = userId,
+                projectId = id,
+                activityDescription = "Project updated",
+                activityEntityType = EntityType.Project,
+                activityEntityId = id
+            });
+
             return Ok(updated);
         }
 
+
+        // ------------------------------------------------------
+        // Delete Project
+        // ------------------------------------------------------
         [HttpDelete("{id}")]
         public async Task<ActionResult<ResponseDto>> DeleteProject(int id)
         {
+            var userId = GetUserId();
+
             var deleted = await _service.DeleteProject(id);
-            if (!deleted) return NotFound(new ResponseDto { IsSuccess = false, Message = "Project deletion failed" });
+            if (!deleted)
+                return NotFound(new ResponseDto { IsSuccess = false, Message = "Project deletion failed" });
+
+            await _activityService.LogAsync(new CreateActivityDto
+            {
+                userId = userId,
+                projectId = id,
+                activityDescription = "Project deleted",
+                activityEntityType = EntityType.Project,
+                activityEntityId = id
+            });
+
             return Ok(new ResponseDto { IsSuccess = true, Message = "Project deleted successfully" });
         }
 
+        // ------------------------------------------------------
+        // Attach File
+        // ------------------------------------------------------
         [HttpPut("{projectId}/attach-file/{fileId}")]
         public async Task<IActionResult> AttachFileToProject(int projectId, int fileId)
         {
+            var userId = GetUserId();
+
             var result = await _service.AttachFileToProjectAsync(projectId, fileId);
 
             if (!result.IsSuccess)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = result.Message
-                });
-            }
+                return BadRequest(result);
 
-            return Ok(new
+            await _activityService.LogAsync(new CreateActivityDto
             {
-                success = true,
-                message = result.Message,
+                userId = userId,
                 projectId = projectId,
-                fileId = fileId
+                activityDescription = $"File attached: {fileId}",
+                activityEntityType = EntityType.File,
+                activityEntityId = fileId
             });
+
+            return Ok(result);
         }
 
+
+        // ------------------------------------------------------
+        // Detach File
+        // ------------------------------------------------------
         [HttpPut("{projectId}/detach-file/{fileId}")]
         public async Task<IActionResult> DettachFileToProject(int projectId, int fileId)
         {
+            var userId = GetUserId();
+
             var result = await _service.DettachFileToProjectAsync(projectId, fileId);
 
             if (!result.IsSuccess)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = result.Message
-                });
-            }
+                return BadRequest(result);
 
-            return Ok(new
+            await _activityService.LogAsync(new CreateActivityDto
             {
-                success = true,
-                message = result.Message,
+                userId = userId,
                 projectId = projectId,
-                fileId = fileId
+                activityDescription = $"File detached: {fileId}",
+                activityEntityType = EntityType.File,
+                activityEntityId = fileId
             });
+
+            return Ok(result);
         }
 
+
+        // ------------------------------------------------------
+        // Add User To Project
+        // ------------------------------------------------------
         [HttpPost("addUserToProject")]
         public async Task<ActionResult<ResponseDto>> AddUser(int userId, int projectId)
         {
-            
+            var actingUserId = GetUserId();  // one who performed action
+
             var result = await _service.AddUserToProjectAsync(userId, projectId);
-            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
 
-            if (!result.IsSuccess) return BadRequest(res);
+            if (!result.IsSuccess)
+                return BadRequest(result);
 
-            return Ok(res);
+            await _activityService.LogAsync(new CreateActivityDto
+            {
+                userId = actingUserId,
+                projectId = projectId,
+                activityDescription = $"User {userId} added to project",
+                activityEntityType = EntityType.Project,
+                activityEntityId = projectId
+            });
+
+            return Ok(result);
         }
 
+
+        // ------------------------------------------------------
+        // Remove User From Project
+        // ------------------------------------------------------
         [HttpDelete("removeUserFromProject")]
         public async Task<ActionResult<ResponseDto>> RemoveUser(int userId, int projectId)
         {
+            var actingUserId = GetUserId();
+
             var result = await _service.RemoveUserFromProjectAsync(userId, projectId);
-            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
 
-            if (!result.IsSuccess) return BadRequest(res);
+            if (!result.IsSuccess)
+                return BadRequest(result);
 
-            return Ok(res);
+            await _activityService.LogAsync(new CreateActivityDto
+            {
+                userId = actingUserId,
+                projectId = projectId,
+                activityDescription = $"User {userId} removed from project",
+                activityEntityType = EntityType.Project,
+                activityEntityId = projectId
+            });
+
+            return Ok(result);
         }
 
-        [HttpGet("{projectId}/GetAllusers")]
-        public async Task<IActionResult> Users(int projectId)
-        {
-            return Ok(await _service.GetUsersByProjectAsync(projectId));
-        }
-
-        [HttpGet("{userId}/GetAllprojects")]
-        public async Task<IActionResult> Projects(int userId)
-        {
-            return Ok(await _service.GetProjectsByUserAsync(userId));
-        }
     }
 }
