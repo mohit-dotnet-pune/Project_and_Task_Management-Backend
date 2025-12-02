@@ -114,12 +114,8 @@ namespace Project___Task_Management_Backend.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<ResponseDto>> DeleteProject(int id)
         {
+
             var userId = GetUserId();
-
-            var deleted = await _service.DeleteProject(id);
-            if (!deleted)
-                return NotFound(new ResponseDto { IsSuccess = false, Message = "Project deletion failed" });
-
             await _activityService.LogAsync(new CreateActivityDto
             {
                 userId = userId,
@@ -128,6 +124,12 @@ namespace Project___Task_Management_Backend.Controllers
                 activityEntityType = EntityType.Project,
                 activityEntityId = id
             });
+
+            var deleted = await _service.DeleteProject(id);
+            if (!deleted)
+                return NotFound(new ResponseDto { IsSuccess = false, Message = "Project deletion failed" });
+
+            
 
             return Ok(new ResponseDto { IsSuccess = true, Message = "Project deleted successfully" });
         }
