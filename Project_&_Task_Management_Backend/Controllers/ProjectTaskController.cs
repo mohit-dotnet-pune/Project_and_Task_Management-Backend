@@ -128,14 +128,15 @@ namespace Project___Task_Management_Backend.Controllers
 
 
         [HttpPost("update-tasks-status")]
-        public async Task<IActionResult> UpdateTasksStatus(UpdateTasksStatusDto dto)
+        public async Task<ActionResult<ResponseDto>> UpdateTasksStatus(UpdateTasksStatusDto dto)
         {
             var result = await _service.UpdateTasksStatusAsync(dto);
 
-            if (!result.IsSuccess)
-                return BadRequest(result);
+            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
 
-            return Ok(result);
+            if (!result.IsSuccess) return BadRequest(res);
+
+            return Ok(res);
         }
 
         [HttpGet("project/{projectId}/tasks")]

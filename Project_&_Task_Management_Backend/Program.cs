@@ -57,6 +57,9 @@ builder.Services.AddSwaggerGen();
 var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+var CloudName = Environment.GetEnvironmentVariable("CloudName");
+var ApiKey = Environment.GetEnvironmentVariable("ApiKey");
+var ApiSecret = Environment.GetEnvironmentVariable("ApiSecret");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
@@ -78,19 +81,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
 
-// cloudinary setup
-builder.Services.Configure<CloudinarySettings>(
-    builder.Configuration.GetSection("CloudinarySettings"));
 
 builder.Services.AddSingleton(provider =>
 {
-    var settings = provider.GetRequiredService<
-        Microsoft.Extensions.Options.IOptions<CloudinarySettings>>().Value;
-
     var account = new CloudinaryDotNet.Account(
-        settings.CloudName,
-        settings.ApiKey,
-        settings.ApiSecret
+        CloudName,
+        ApiKey,
+        ApiSecret
     );
 
     return new CloudinaryDotNet.Cloudinary(account);
