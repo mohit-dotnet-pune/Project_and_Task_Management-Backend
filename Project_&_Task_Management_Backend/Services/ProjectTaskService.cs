@@ -1,4 +1,5 @@
 ﻿using Project___Task_Management_Backend.Data;
+using Project___Task_Management_Backend.DTO.CloudinaryDtos;
 using Project___Task_Management_Backend.DTO.ProjectTaskDtos;
 using Project___Task_Management_Backend.Interfaces;
 using Project___Task_Management_Backend.Models;
@@ -14,6 +15,8 @@ namespace Project___Task_Management_Backend.Services
         private readonly IProjectRepository _fileRepo;
         private readonly AppDbContext _appDbContext;
         private readonly NotificationService _notifier;
+        private readonly CloudinaryService _cloudinaryService;
+
 
         public ProjectTaskService(
             IProjectTaskRepository repo,
@@ -21,7 +24,8 @@ namespace Project___Task_Management_Backend.Services
             IProjectRepository projectRepo,
             IProjectRepository fileRepo,
             AppDbContext appDbContext,
-            NotificationService notifer
+            NotificationService notifer,
+            CloudinaryService cloudinaryService
             )
         {
             _repo = repo;
@@ -30,12 +34,23 @@ namespace Project___Task_Management_Backend.Services
             _fileRepo = fileRepo;
             _appDbContext = appDbContext;
             _notifier = notifer;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<ProjectTask?> CreateTaskAsync(CreateTaskDto dto)
         {
             var project = await _projectRepo.GetProjectById(dto.projectId);
             if (project == null) return null;
+
+            UploadResponse result_doc = await _cloudinaryService.UploadFileAsync(dto.fileForm);
+
+            var doc = new Doc
+            {
+                fileName = result_doc.FileName,
+                fileURL = result_doc.FileUrl
+            };
+            _appDbContext.docs.Add(doc);
+            await _appDbContext.SaveChangesAsync();
 
             var task = new ProjectTask
             {
@@ -44,7 +59,10 @@ namespace Project___Task_Management_Backend.Services
                 taskDescription = dto.taskDescription,
                 taskPriority = dto.taskPriority,
                 taskStatus = dto.taskStatus,
-                taskDueDate = dto.taskDueDate
+                userId = dto.userId,
+                taskDueDate = dto.taskDueDate,
+                fileId = doc.fileId,
+                file = doc
             };
 
             _appDbContext.tasks.Add(task);

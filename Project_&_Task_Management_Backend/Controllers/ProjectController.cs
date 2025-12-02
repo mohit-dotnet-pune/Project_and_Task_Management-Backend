@@ -3,7 +3,10 @@ using global::Project___Task_Management_Backend.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Project___Task_Management_Backend.Data;
 using Project___Task_Management_Backend.DTO;
+using Project___Task_Management_Backend.DTO.CloudinaryDtos;
+using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Services;
 
 namespace Project___Task_Management_Backend.Controllers
@@ -15,17 +18,21 @@ namespace Project___Task_Management_Backend.Controllers
     {
         private readonly IProjectService _service;
 
-        public ProjectController(IProjectService service)
+        public ProjectController(IProjectService service,CloudinaryService cloudinaryService,AppDbContext db)
         {
             _service = service;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProject([FromBody] CreateProjectDto dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateProject([FromForm] CreateProjectDto dto)
 
+        {
+            //uploading file to cloudinary
+
+
+
+            //creating project
             var result = await _service.CreateProjectAsync(dto);
 
             if (!result.IsSuccess)

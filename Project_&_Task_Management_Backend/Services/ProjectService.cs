@@ -1,6 +1,9 @@
 ﻿using global::Project___Task_Management_Backend.DTO.ProjectDtos;
 using global::Project___Task_Management_Backend.Interfaces;
 using global::Project___Task_Management_Backend.Models;
+using Project___Task_Management_Backend.Data;
+using Project___Task_Management_Backend.DTO.CloudinaryDtos;
+using Sprache;
 
 namespace Project___Task_Management_Backend.Services
 {
@@ -8,18 +11,34 @@ namespace Project___Task_Management_Backend.Services
     {
         private readonly IProjectRepository _repo;
 
-        public ProjectService(IProjectRepository repo)
+        private readonly CloudinaryService _cloudinaryService;
+        private readonly AppDbContext _db;
+
+        public ProjectService(IProjectRepository repo, CloudinaryService cloudinaryService, AppDbContext db)
         {
             _repo = repo;
+            _cloudinaryService = cloudinaryService;
+            _db = db;
         }
 
         public async Task<(bool IsSuccess, string Message, Project? Data)> CreateProjectAsync(CreateProjectDto dto)
         {
             try
             {
-                // 🔹 Validation
-                if (dto.projectEndDate < dto.projectStartDate)
-                    return (false, "End date cannot be before start date.", null);
+                UploadResponse file_response = await _cloudinaryService.UploadFileAsync(dto.formFile);
+               
+
+                var doc = new Doc
+                {
+                    fileName = file_response.FileName,
+                    fileURL = file_response.FileUrl
+                };
+
+                _db.docs.Add(doc);
+                await _db.SaveChangesAsync();
+
+                
+              
 
                 var project = new Project
                 {
@@ -46,6 +65,9 @@ namespace Project___Task_Management_Backend.Services
                     }
                 }
 
+                savedProject.file = doc;
+                savedProject.fileId = doc.fileId;
+                await _repo.UpdateProject(savedProject);
                 return (true, "Project created successfully.", savedProject);
             }
             catch (Exception ex)
