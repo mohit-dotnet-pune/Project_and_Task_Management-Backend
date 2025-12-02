@@ -808,6 +808,9 @@ namespace Project___Task_Management_Backend.Migrations
                     b.Property<DateTime>("projectStartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("projectStatus")
+                        .HasColumnType("int");
+
                     b.HasKey("projectId");
 
                     b.HasIndex("fileId")

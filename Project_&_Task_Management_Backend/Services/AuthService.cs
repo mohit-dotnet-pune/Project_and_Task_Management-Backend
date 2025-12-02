@@ -197,6 +197,8 @@ namespace Project___Task_Management_Backend.Services
                 return (false, null, "Invalid credentials.");
 
             // 4️⃣ Generate JWT
+
+
             var token = GenerateJwtToken(user);
 
             // 5️⃣ Save JWT in database
@@ -231,23 +233,19 @@ namespace Project___Task_Management_Backend.Services
 
 
         private string GenerateJwtToken(User user)
-
         {
+            var key = Environment.GetEnvironmentVariable("JWT_KEY");
+            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+            var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+            var minutes = int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIRY_MINUTES") ?? "60");
 
-            var key = _config["Jwt:Key"];
-
-            var issuer = _config["Jwt:Issuer"];
-
-            var audience = _config["Jwt:Audience"];
-
-            var minutes = _config.GetValue<int>("Jwt:ExpiryMinutes");
+            if (string.IsNullOrEmpty(key))
+                throw new Exception("JWT Key is missing. Check your .env file.");
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-
             var creds = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
-
             {
 
                 new Claim("username", user.userName),
@@ -262,22 +260,16 @@ namespace Project___Task_Management_Backend.Services
             };
 
             var token = new JwtSecurityToken(
-
                 issuer: issuer,
-
                 audience: audience,
-
                 claims: claims,
-
                 expires: DateTime.UtcNow.AddMinutes(minutes),
-
                 signingCredentials: creds
-
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-
         }
+
 
         // ----------------------------------------------------------------------
 

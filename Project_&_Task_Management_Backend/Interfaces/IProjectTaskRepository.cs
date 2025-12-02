@@ -7,6 +7,8 @@ namespace Project___Task_Management_Backend.Interfaces
         Task<ProjectTask?> GetTaskWithDetailsAsync(int taskId);
         Task AddCommentAsync(Comment comment);
         List<ProjectTask> GetAll();
+
+        Task<List<ProjectTask>> GetTasksByProjectId(int projectId);
     }
 
 }

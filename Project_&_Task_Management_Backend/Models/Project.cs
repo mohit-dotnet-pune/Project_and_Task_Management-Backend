@@ -4,6 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Project___Task_Management_Backend.Models
 {
+    public enum projStatus
+    {
+        Inprogress,
+        Done
+    }
     public class Project
     {
         [Key]
@@ -18,6 +23,8 @@ namespace Project___Task_Management_Backend.Models
         public string projectDescription { get; set; }
         [Required]
         public DateTime projectStartDate { get; set; }
+        [Required]
+        public projStatus projectStatus { get; set; }
         [Required]
         public DateTime projectEndDate { get; set; }
         public DateTime projectCreatedAt { get; set; } = DateTime.UtcNow;
