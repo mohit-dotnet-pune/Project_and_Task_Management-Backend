@@ -42,7 +42,6 @@
                 }
             }
 
-            Console.WriteLine("came at the end after all validation");
             await _next(context);
         }
     }
