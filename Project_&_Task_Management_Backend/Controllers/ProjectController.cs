@@ -1,5 +1,6 @@
 ﻿using global::Project___Task_Management_Backend.DTO.ProjectDtos;
 using global::Project___Task_Management_Backend.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project___Task_Management_Backend.DTO;
 using Project___Task_Management_Backend.DTO.ActivityDtos;
@@ -10,7 +11,7 @@ namespace Project___Task_Management_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Manager")]
+    //[Authorize(Roles = "Manager")]
     public class ProjectController : ControllerBase
     {
         private readonly IProjectService _service;
@@ -44,6 +45,7 @@ namespace Project___Task_Management_Backend.Controllers
             var userId = GetUserId();
 
             var result = await _service.CreateProject(dto);
+            Console.WriteLine("project ID" + result.projectId);
 
             await _activityService.LogAsync(new CreateActivityDto
             {
@@ -82,7 +84,8 @@ namespace Project___Task_Management_Backend.Controllers
         // Update Project
         // ------------------------------------------------------
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProject(int id, UpdateProjectDto dto)
+        public async Task<IActionResult> UpdateProject(int id, [FromBody] UpdateProjectDto dto)
+
         {
             var userId = GetUserId();
 

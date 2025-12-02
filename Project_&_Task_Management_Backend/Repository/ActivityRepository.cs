@@ -16,7 +16,7 @@ namespace Project___Task_Management_Backend.Repository
 
         public async Task<Activity> AddAsync(Activity activity)
         {
-            await _context.activities.AddAsync(activity);
+             _context.activities.Add(activity);
             await _context.SaveChangesAsync();
             return activity;
         }

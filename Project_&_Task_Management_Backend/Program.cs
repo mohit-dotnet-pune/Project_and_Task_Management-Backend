@@ -15,7 +15,7 @@ using DotNetEnv;
 var builder = WebApplication.CreateBuilder(args);
 
 // 🌟 Load .env file from root folder
-Env.Load();
+DotNetEnv.Env.Load();
 
 // CONTROLLERS
 builder.Services.AddControllers().AddJsonOptions(options =>

@@ -1,24 +1,23 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using System.Security.Claims;
 
 namespace Project___Task_Management_Backend.Middleware
 {
     public class JwtVerificationMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IConfiguration _config;
 
-        public JwtVerificationMiddleware(RequestDelegate next, IConfiguration config)
+        public JwtVerificationMiddleware(RequestDelegate next)
         {
             _next = next;
-            _config = config;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
             var path = context.Request.Path.Value?.ToLower();
-            Console.WriteLine(context.ToString());
+
             // Allow public routes
             if (path.StartsWith("/api/auth"))
             {
@@ -37,27 +36,38 @@ namespace Project___Task_Management_Backend.Middleware
 
             try
             {
-                var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
+                // Read from environment variables
+                var key = Environment.GetEnvironmentVariable("JWT_KEY");
+                var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+                var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+                if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
+                    throw new Exception("JWT configuration missing in environment variables");
+
+                var keyBytes = Encoding.UTF8.GetBytes(key.Trim());
 
                 var tokenHandler = new JwtSecurityTokenHandler();
-
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                var validatedToken = tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
                     ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
+                }, out SecurityToken securityToken);
 
-                var jwtToken = (JwtSecurityToken)validatedToken;
+                var jwtToken = (JwtSecurityToken)securityToken;
 
-                // Extract all claims
-                var claims = jwtToken.Claims.ToDictionary(c => c.Type, c => c.Value);
+                // Populate HttpContext.Items for GetUserId()
+                var claimsDict = jwtToken.Claims.ToDictionary(c => c.Type, c => c.Value);
+                context.Items["User"] = claimsDict;
 
-                // Store in HttpContext.Items
-                context.Items["User"] = claims;
+                // Populate context.User for [Authorize] and Roles
+                var identity = new ClaimsIdentity(jwtToken.Claims, "jwt");
+                context.User = new ClaimsPrincipal(identity);
 
                 await _next(context);
             }
@@ -66,14 +76,11 @@ namespace Project___Task_Management_Backend.Middleware
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync("Token expired");
             }
-            catch
+            catch (Exception ex)
             {
                 context.Response.StatusCode = 401;
-                await context.Response.WriteAsync("Invalid token");
+                await context.Response.WriteAsync("Invalid token: " + ex.Message);
             }
-
-            Console.WriteLine("came at the end after all validation");
-            await _next(context);
         }
     }
 }
