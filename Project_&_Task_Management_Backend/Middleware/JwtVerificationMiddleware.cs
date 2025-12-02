@@ -81,6 +81,8 @@ namespace Project___Task_Management_Backend.Middleware
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync("Invalid token: " + ex.Message);
             }
+
+            await _next(context);
         }
     }
 }
