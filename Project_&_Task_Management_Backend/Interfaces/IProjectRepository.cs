@@ -22,6 +22,8 @@ namespace Project___Task_Management_Backend.Interfaces
 
         Task<UserProject?> RemoveMappingAsync(int userId, int projectId);
         Task<bool> AddUserToProject(int userId, int projectId);
+
+        public Task<bool> DeleteUsersFromProject(int projectId);
     }
 }
 

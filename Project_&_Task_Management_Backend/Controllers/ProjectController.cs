@@ -3,30 +3,49 @@ using global::Project___Task_Management_Backend.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Project___Task_Management_Backend.Data;
 using Project___Task_Management_Backend.DTO;
-using Project___Task_Management_Backend.Helpers;
+using Project___Task_Management_Backend.DTO.CloudinaryDtos;
+using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Services;
 
 namespace Project___Task_Management_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Manager")]
+    //[Authorize(Roles = "Manager")]
     public class ProjectController : ControllerBase
     {
         private readonly IProjectService _service;
 
-        public ProjectController(IProjectService service)
+        public ProjectController(IProjectService service,CloudinaryService cloudinaryService,AppDbContext db)
         {
             _service = service;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProject([FromBody] CreateProjectDto dto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateProject([FromForm] CreateProjectDto dto)
+
         {
-            var result = await _service.CreateProject(dto);
-            return Ok(result);
+            //uploading file to cloudinary
+
+
+
+            //creating project
+            var result = await _service.CreateProjectAsync(dto);
+
+            if (!result.IsSuccess)
+                return BadRequest(new { success = false, message = result.Message });
+
+            return Ok(new
+            {
+                success = true,
+                message = result.Message,
+                project = result.Data
+            });
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProject(int id)

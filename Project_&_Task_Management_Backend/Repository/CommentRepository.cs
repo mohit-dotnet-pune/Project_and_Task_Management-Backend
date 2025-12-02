@@ -28,6 +28,7 @@ namespace Project___Task_Management_Backend.Repository
             return await _context.comments
                 .Where(c => c.userId == userId)
                 .Include(c => c.task)
+                .Include(c => c.file)
                 .ToListAsync();
         }
     }
