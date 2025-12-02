@@ -298,7 +298,7 @@ namespace Project___Task_Management_Backend.Services
             //var subject = "Reset Password OTP";
 
             //var message = $"Your OTP is <b>{otp}</b>.";
-            var subject = "Project & Task Management - Reset Password OTP";
+            var subject = "Skedulo - Reset Password OTP";
             var message = $"Hello {user.userName},<br/><br/>" +
                           $"Your Password Reset OTP is <b>{otp}</b>.<br/><br/>" +
                           "Please use this OTP to verify your email within 15 minutes.";
@@ -339,12 +339,12 @@ namespace Project___Task_Management_Backend.Services
             await _db.SaveChangesAsync();
 
             // Send confirmation email
-            var subject = "Your Password Has Been Successfully Reset - Project & Task Management";
+            var subject = "Your Password Has Been Successfully Reset - Skedulo";
             var message = $"Hello {user.userName},<br/><br/>" +
                           $"Your password has been successfully reset.<br/><br/>" +
                           $"If you did NOT request this password reset, please contact support immediately.<br/><br/>" +
                           $"Regards,<br/>" +
-                          $"Project & Task Management Team";
+                          $"Skedulo Team";
 
             _emailHelper.Send(user.userEmail, subject, message);
 
