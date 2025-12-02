@@ -18,7 +18,7 @@ namespace Project___Task_Management_Backend.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             var path = context.Request.Path.Value?.ToLower();
-
+            Console.WriteLine(context.ToString());
             // Allow public routes
             if (path.StartsWith("/api/auth"))
             {
@@ -71,6 +71,9 @@ namespace Project___Task_Management_Backend.Middleware
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync("Invalid token");
             }
+
+            Console.WriteLine("came at the end after all validation");
+            await _next(context);
         }
     }
 }

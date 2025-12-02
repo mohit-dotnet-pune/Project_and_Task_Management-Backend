@@ -237,5 +237,30 @@ namespace Project___Task_Management_Backend.Controllers
             List<ProjectTask> tasks = _service.GetAllTasks(userId);
             return Ok(tasks);
         }
+
+
+        [HttpPost("update-tasks-status")]
+        public async Task<ActionResult<ResponseDto>> UpdateTasksStatus(UpdateTasksStatusDto dto)
+        {
+            var result = await _service.UpdateTasksStatusAsync(dto);
+
+            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
+
+            if (!result.IsSuccess) return BadRequest(res);
+
+            return Ok(res);
+        }
+
+        [HttpGet("project/{projectId}/tasks")]
+        public async Task<IActionResult> GetTasksByProject(int projectId)
+        {
+            var tasks = await _service.GetTasksForProjectAsync(projectId);
+            if (tasks == null || tasks.Count == 0)
+                return NotFound($"No tasks found for project {projectId}"); 
+
+            return Ok(tasks);
+        }
+
+
     }
 }

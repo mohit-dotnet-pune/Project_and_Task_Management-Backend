@@ -35,6 +35,21 @@ namespace Project___Task_Management_Backend.Repository
         {
             return _context.tasks.ToList();
         }
+
+
+        public async Task<List<ProjectTask>> GetTasksByProjectId(int projectId)
+        {
+            return await _context.tasks
+                .Where(t => t.projectId == projectId)
+                .Include(t => t.user)
+                .Include(t => t.project)
+                .Include(t => t.file)
+                .Include(t => t.comments)
+                    .ThenInclude(c => c.file)
+                .ToListAsync();
+        }
+
+
     }
 
 }

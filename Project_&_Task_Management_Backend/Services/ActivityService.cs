@@ -58,7 +58,7 @@ namespace Project___Task_Management_Backend.Services
                 activityCreatedAt = a.activityCreatedAt
             });
         }
-        public async Task<IEnumerable<ActivityResponseDto>> GetAllActivities()
+       public async Task<IEnumerable<ActivityResponseDto>> GetAllActivities()
         {
             var data = await _repo.GetAllAsync();
 

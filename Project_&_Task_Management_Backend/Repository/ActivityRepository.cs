@@ -40,8 +40,9 @@ namespace Project___Task_Management_Backend.Repository
         public async Task<IEnumerable<Activity>> GetAllAsync()
         {
             return await _context.activities
-                .OrderByDescending(a => a.activityCreatedAt)
+                    .OrderByDescending(a => a.activityCreatedAt)
                 .ToListAsync();
         }
+
     }
 }

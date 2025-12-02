@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Project___Task_Management_Backend.DTO.ActivityDtos;
+using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Services;
 using Project___Task_Management_Backend.Models;
 
@@ -16,9 +18,9 @@ namespace Project___Task_Management_Backend.Controllers
             _activityService = activityService;
         }
 
-        // --------------------------------------------------
+        // ------------------------------------------
         // 1. Create Activity
-        // --------------------------------------------------
+        // ------------------------------------------
         [HttpPost("create")]
         public async Task<IActionResult> CreateActivity([FromBody] CreateActivityDto dto)
         {
