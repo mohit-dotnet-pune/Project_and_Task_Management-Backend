@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project___Task_Management_Backend.DTO.CommentDtos;
 using Project___Task_Management_Backend.Interfaces;
@@ -7,6 +8,7 @@ namespace Project___Task_Management_Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    //[Authorize]
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;

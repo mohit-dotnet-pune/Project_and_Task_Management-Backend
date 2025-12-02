@@ -6,6 +6,7 @@ namespace Project___Task_Management_Backend.Models
 {
     public enum projStatus
     {
+        ToDo,
         Inprogress,
         Done
     }

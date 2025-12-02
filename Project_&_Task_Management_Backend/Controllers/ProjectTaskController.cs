@@ -1,13 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Project___Task_Management_Backend.DTO;
 using Project___Task_Management_Backend.DTO.ProjectTaskDtos;
 using Project___Task_Management_Backend.Interfaces;
 using Project___Task_Management_Backend.Models;
+using System.Threading.Tasks;
 
 namespace Project___Task_Management_Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    //[Authorize]
     public class ProjectTaskController : ControllerBase
     {
         private readonly IProjectTaskService _service;
@@ -36,12 +41,14 @@ namespace Project___Task_Management_Backend.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ActionResult<ResponseDto>> Delete(int id)
         {
             var result = await _service.DeleteTaskAsync(id);
-            if(!result.IsSuccess) return NotFound(result);
+            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
 
-            return Ok(result);
+            if (!result.IsSuccess) return NotFound(res);
+
+            return Ok(res);
         }
 
         [HttpGet("{id}")]
@@ -64,21 +71,53 @@ namespace Project___Task_Management_Backend.Controllers
 
         // Attach/Detach User
         [HttpPost("{taskId}/attach-user/{userId}")]
-        public async Task<IActionResult> AttachUser(int taskId, int userId)
-            => Ok(await _service.AttachUserAsync(taskId, userId));
+        public async Task<ActionResult<ResponseDto>> AttachUser(int taskId, int userId)
+        {
+            
+                var result = await _service.AttachUserAsync(taskId, userId);
+                ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
+
+                if (!result.IsSuccess) return BadRequest(res);
+
+                return Ok(res);
+            
+        }
 
         [HttpPost("{taskId}/detach-user")]
-        public async Task<IActionResult> DetachUser(int taskId)
-            => Ok(await _service.DetachUserAsync(taskId));
+        public async Task<ActionResult<ResponseDto>> DetachUser(int taskId)
+        {
+        var result =  await _service.DetachUserAsync(taskId);
+        ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
+
+            if (!result.IsSuccess) return BadRequest(res);
+
+            return Ok(res);
+        }
 
         // Attach/Detach File
         [HttpPost("{taskId}/attach-file/{fileId}")]
-        public async Task<IActionResult> AttachFile(int taskId, int fileId)
-            => Ok(await _service.AttachFileAsync(taskId, fileId));
+        public async Task<ActionResult<ResponseDto>> AttachFile(int taskId, int fileId)
+        {
+            var result = await _service.AttachFileAsync(taskId, fileId);
+            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
+
+            if (!result.IsSuccess) return BadRequest(res);
+
+            return Ok(res);
+
+        }
 
         [HttpPost("{taskId}/detach-file")]
-        public async Task<IActionResult> DetachFile(int taskId)
-            => Ok(await _service.DetachFileAsync(taskId));
+        public async Task<ActionResult<ResponseDto>> DetachFile(int taskId)
+        {
+            var result = await _service.DetachFileAsync(taskId);
+            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
+
+            if (!result.IsSuccess) return BadRequest(res);
+
+            return Ok(res);
+        }
+          
 
         [HttpGet("getAllTask/{userId}")]
         public IActionResult GetAllTaskOfUser(int userId)
@@ -89,14 +128,15 @@ namespace Project___Task_Management_Backend.Controllers
 
 
         [HttpPost("update-tasks-status")]
-        public async Task<IActionResult> UpdateTasksStatus(UpdateTasksStatusDto dto)
+        public async Task<ActionResult<ResponseDto>> UpdateTasksStatus(UpdateTasksStatusDto dto)
         {
             var result = await _service.UpdateTasksStatusAsync(dto);
 
-            if (!result.IsSuccess)
-                return BadRequest(result);
+            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
 
-            return Ok(result);
+            if (!result.IsSuccess) return BadRequest(res);
+
+            return Ok(res);
         }
 
         [HttpGet("project/{projectId}/tasks")]
@@ -104,7 +144,7 @@ namespace Project___Task_Management_Backend.Controllers
         {
             var tasks = await _service.GetTasksForProjectAsync(projectId);
             if (tasks == null || tasks.Count == 0)
-                return NotFound($"No tasks found for project {projectId}");
+                return NotFound($"No tasks found for project {projectId}"); 
 
             return Ok(tasks);
         }

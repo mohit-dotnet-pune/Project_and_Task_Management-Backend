@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project___Task_Management_Backend.Data;
 
@@ -11,9 +12,11 @@ using Project___Task_Management_Backend.Data;
 namespace Project___Task_Management_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251201183632_f")]
+    partial class f
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -808,9 +811,6 @@ namespace Project___Task_Management_Backend.Migrations
                     b.Property<DateTime>("projectStartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("projectStatus")
-                        .HasColumnType("int");
-
                     b.HasKey("projectId");
 
                     b.HasIndex("fileId")
@@ -828,8 +828,7 @@ namespace Project___Task_Management_Backend.Migrations
                             projectDescription = "Alpha project description",
                             projectEndDate = new DateTime(2024, 10, 1, 17, 0, 0, 0, DateTimeKind.Utc),
                             projectName = "Project Alpha",
-                            projectStartDate = new DateTime(2024, 7, 1, 9, 0, 0, 0, DateTimeKind.Utc),
-                            projectStatus = 0
+                            projectStartDate = new DateTime(2024, 7, 1, 9, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -839,8 +838,7 @@ namespace Project___Task_Management_Backend.Migrations
                             projectDescription = "Beta project description",
                             projectEndDate = new DateTime(2024, 11, 1, 17, 0, 0, 0, DateTimeKind.Utc),
                             projectName = "Project Beta",
-                            projectStartDate = new DateTime(2024, 8, 1, 9, 0, 0, 0, DateTimeKind.Utc),
-                            projectStatus = 0
+                            projectStartDate = new DateTime(2024, 8, 1, 9, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -850,8 +848,7 @@ namespace Project___Task_Management_Backend.Migrations
                             projectDescription = "Gamma project description",
                             projectEndDate = new DateTime(2024, 12, 1, 17, 0, 0, 0, DateTimeKind.Utc),
                             projectName = "Project Gamma",
-                            projectStartDate = new DateTime(2024, 9, 1, 9, 0, 0, 0, DateTimeKind.Utc),
-                            projectStatus = 0
+                            projectStartDate = new DateTime(2024, 9, 1, 9, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -861,8 +858,7 @@ namespace Project___Task_Management_Backend.Migrations
                             projectDescription = "Delta project description",
                             projectEndDate = new DateTime(2024, 10, 15, 17, 0, 0, 0, DateTimeKind.Utc),
                             projectName = "Project Delta",
-                            projectStartDate = new DateTime(2024, 7, 15, 9, 0, 0, 0, DateTimeKind.Utc),
-                            projectStatus = 0
+                            projectStartDate = new DateTime(2024, 7, 15, 9, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -872,8 +868,7 @@ namespace Project___Task_Management_Backend.Migrations
                             projectDescription = "Epsilon project description",
                             projectEndDate = new DateTime(2024, 11, 15, 17, 0, 0, 0, DateTimeKind.Utc),
                             projectName = "Project Epsilon",
-                            projectStartDate = new DateTime(2024, 8, 15, 9, 0, 0, 0, DateTimeKind.Utc),
-                            projectStatus = 0
+                            projectStartDate = new DateTime(2024, 8, 15, 9, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
@@ -883,8 +878,7 @@ namespace Project___Task_Management_Backend.Migrations
                             projectDescription = "Zeta project description",
                             projectEndDate = new DateTime(2024, 12, 15, 17, 0, 0, 0, DateTimeKind.Utc),
                             projectName = "Project Zeta",
-                            projectStartDate = new DateTime(2024, 9, 15, 9, 0, 0, 0, DateTimeKind.Utc),
-                            projectStatus = 0
+                            projectStartDate = new DateTime(2024, 9, 15, 9, 0, 0, 0, DateTimeKind.Utc)
                         });
                 });
 

@@ -1,13 +1,16 @@
 ﻿using global::Project___Task_Management_Backend.DTO.ProjectDtos;
 using global::Project___Task_Management_Backend.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Project___Task_Management_Backend.DTO;
 using Project___Task_Management_Backend.Services;
 
 namespace Project___Task_Management_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Manager")]
     public class ProjectController : ControllerBase
     {
         private readonly IProjectService _service;
@@ -48,11 +51,11 @@ namespace Project___Task_Management_Backend.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProject(int id)
+        public async Task<ActionResult<ResponseDto>> DeleteProject(int id)
         {
             var deleted = await _service.DeleteProject(id);
-            if (!deleted) return NotFound();
-            return Ok(new { message = "Project deleted successfully" });
+            if (!deleted) return NotFound(new ResponseDto { IsSuccess = false, Message = "Project deletion failed" });
+            return Ok(new ResponseDto { IsSuccess = true, Message = "Project deleted successfully" });
         }
 
         [HttpPut("{projectId}/attach-file/{fileId}")]
@@ -102,21 +105,26 @@ namespace Project___Task_Management_Backend.Controllers
         }
 
         [HttpPost("addUserToProject")]
-        public async Task<IActionResult> AddUser([FromQuery] int userId,[FromQuery] int projectId)
+        public async Task<ActionResult<ResponseDto>> AddUser(int userId, int projectId)
         {
+            
             var result = await _service.AddUserToProjectAsync(userId, projectId);
-            if (!result.IsSuccess) return BadRequest(result);
+            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
 
-            return Ok(result);
+            if (!result.IsSuccess) return BadRequest(res);
+
+            return Ok(res);
         }
 
         [HttpDelete("removeUserFromProject")]
-        public async Task<IActionResult> RemoveUser(int userId, int projectId)
+        public async Task<ActionResult<ResponseDto>> RemoveUser(int userId, int projectId)
         {
             var result = await _service.RemoveUserFromProjectAsync(userId, projectId);
-            if (!result.IsSuccess) return NotFound(result);
+            ResponseDto res = new ResponseDto { IsSuccess = result.IsSuccess, Message = result.Message };
 
-            return Ok(result);
+            if (!result.IsSuccess) return BadRequest(res);
+
+            return Ok(res);
         }
 
         [HttpGet("{projectId}/GetAllusers")]

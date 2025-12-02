@@ -104,13 +104,13 @@ namespace Project___Task_Management_Backend.Services
         {
             bool result = await _repo.AddUserToProject(userId, projectId);
             if (result) return (true, "user added to project successfully");
-            else return (false, "user id or project id not correct");
+            else return (false, "user is already present in the project ");
         }
 
         public async Task<(bool IsSuccess, string Message)> RemoveUserFromProjectAsync(int userId, int projectId)
         {
             var ans = await _repo.RemoveMappingAsync(userId, projectId);
-            if (ans == null) return (false, "user id or project id is not correct");
+            if (ans == null) return (false, "user id or project id is not present");
             return (true, "user removed from project successfully");
             
         }
