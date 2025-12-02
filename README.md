@@ -215,32 +215,6 @@ Important: __UseAuthentication__ must run before custom JwtVerificationMiddlewar
 
 ---
 
-## 14 — Known issues & recommended fixes
-1. Duplicate controller class name:
-   - Two files define `public class FileController`. Rename one class (e.g., to `DocsController` or `CloudinaryController`) to resolve duplicate-type compile error.
-2. Parameter binding clarity:
-   - Endpoints such as `AddUser(int userId, int projectId)` rely on query parameters — annotate with [FromQuery] or change route to include parameters.
-3. Temporary in-memory OTP & registration store:
-   - Not appropriate for multi-instance deployments. Use persistent store (DB or cache) for production.
-4. Token revocation check missing:
-   - Consider checking DB-stored JwtToken during authentication if you want server-side revocation.
-5. Centralized exception handling not present.
 
 ---
 
-## 15 — Next steps & enhancements
-- Rename duplicate controller class to fix compile errors.
-- Add global error handling middleware.
-- Implement refresh-token endpoint and rotate refresh tokens.
-- Replace in-memory temp stores with DB-backed tables or distributed cache (Redis) for OTPs and pending registrations.
-- Add structured logging, request tracing and metrics.
-- Add unit/integration tests for services and controllers.
-
----
-
-If you want, I can:
-- Create a repo-root `README.md` file and commit it.
-- Generate a Postman collection for all endpoints.
-- Produce a short PlantUML or Mermaid textual architecture diagram.
-
-Which would you like next?
