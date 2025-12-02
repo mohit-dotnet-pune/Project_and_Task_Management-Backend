@@ -83,6 +83,18 @@ namespace Project___Task_Management_Backend.Services
             if (project == null)
                 return null;
 
+            UploadResponse file_response = await _cloudinaryService.UploadFileAsync(dto.formfile);
+
+
+            var doc = new Doc
+            {
+                fileName = file_response.FileName,
+                fileURL = file_response.FileUrl
+            };
+
+            _db.docs.Add(doc);
+            await _db.SaveChangesAsync();
+
             // 🔹 Validation
             if (dto.projectEndDate < dto.projectStartDate)
                 throw new Exception("End date cannot be before start date.");
@@ -92,6 +104,8 @@ namespace Project___Task_Management_Backend.Services
             project.projectDescription = dto.projectDescription;
             project.projectStartDate = dto.projectStartDate;
             project.projectEndDate = dto.projectEndDate;
+            project.fileId = doc.fileId;
+            project.file = doc;
 
             // ===============================
             // UPDATE ASSIGNED USERS

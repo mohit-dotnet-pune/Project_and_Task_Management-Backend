@@ -76,6 +76,18 @@ namespace Project___Task_Management_Backend.Services
             var task = await _appDbContext.tasks.FindAsync(id);
             if (task == null) return null;
 
+
+            UploadResponse result_doc = await _cloudinaryService.UploadFileAsync(dto.formFile);
+
+            var doc = new Doc
+            {
+                fileName = result_doc.FileName,
+                fileURL = result_doc.FileUrl
+            };
+            _appDbContext.docs.Add(doc);
+            await _appDbContext.SaveChangesAsync();
+
+
             // send notification
             if (task.taskStatus != dto.taskStatus && task.userId != null)
             {
@@ -94,6 +106,8 @@ namespace Project___Task_Management_Backend.Services
             task.taskPriority = dto.taskPriority;
             task.taskStatus = dto.taskStatus;
             task.taskDueDate = dto.taskDueDate;
+            task.fileId = doc.fileId;
+            task.file = doc;
 
             await _appDbContext.SaveChangesAsync();
             return task;

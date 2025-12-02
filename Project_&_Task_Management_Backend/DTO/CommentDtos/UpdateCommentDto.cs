@@ -4,7 +4,7 @@
     {
         public string? commentMessage { get; set; }
 
-        public int? fileId { get; set; }  // allow updating file
+        public IFormFile? commentFileForm { get; set; }
     }
 
 }
