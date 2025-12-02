@@ -107,6 +107,14 @@ namespace Project___Task_Management_Backend.Repository
             return mapping;
         }
 
+        public async Task<bool> DeleteUsersFromProject(int projectId)
+        {
+            var existing = _db.userProjects.Where(up => up.projectId == projectId);
+            _db.userProjects.RemoveRange(existing);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> AddUserToProject(int userId, int projectId)
         {
             if (await ExistsAsync(userId, projectId))

@@ -13,19 +13,86 @@ namespace Project___Task_Management_Backend.Services
             _repo = repo;
         }
 
-        public async Task<Project> CreateProject(CreateProjectDto dto)
+        public async Task<(bool IsSuccess, string Message, Project? Data)> CreateProjectAsync(CreateProjectDto dto)
         {
-            var project = new Project
+            try
             {
-                projectName = dto.projectName,
-                projectDescription = dto.projectDescription,
-                projectStartDate = dto.projectStartDate,
-                projectEndDate = dto.projectEndDate,
-                projectCreatedAt = DateTime.UtcNow
-            };
+                // 🔹 Validation
+                if (dto.projectEndDate < dto.projectStartDate)
+                    return (false, "End date cannot be before start date.", null);
 
-            return await _repo.CreateProject(project);
+                var project = new Project
+                {
+                    projectName = dto.projectName,
+                    projectDescription = dto.projectDescription,
+                    projectStartDate = dto.projectStartDate,
+                    projectEndDate = dto.projectEndDate,
+                    projectStatus = projStatus.ToDo,
+                    projectCreatedAt = DateTime.UtcNow
+                };
+
+                // 🔹 Create Project
+                var savedProject = await _repo.CreateProject(project);
+                if (savedProject == null)
+                    return (false, "Failed to create project.", null);
+
+                // 🔥 MULTIPLE USER ATTACH HERE
+                if (dto.UserIds != null && dto.UserIds.Count > 0)
+                {
+                    foreach (var userId in dto.UserIds.Distinct())  // avoid duplicates
+                    {
+                        bool added = await _repo.AddUserToProject(userId, savedProject.projectId);
+                        // ❌ skip if already exists — do not throw error
+                    }
+                }
+
+                return (true, "Project created successfully.", savedProject);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}", null);
+            }
         }
+
+        public async Task<Project?> UpdateProject(int id, UpdateProjectDto dto)
+        {
+            // Get project
+            var project = await _repo.GetProjectById(id);
+            if (project == null)
+                return null;
+
+            // 🔹 Validation
+            if (dto.projectEndDate < dto.projectStartDate)
+                throw new Exception("End date cannot be before start date.");
+
+            // 🔥 Update fields
+            project.projectName = dto.projectName;
+            project.projectDescription = dto.projectDescription;
+            project.projectStartDate = dto.projectStartDate;
+            project.projectEndDate = dto.projectEndDate;
+
+            // ===============================
+            // UPDATE ASSIGNED USERS
+            // ===============================
+
+            // Remove existing users first
+            await _repo.DeleteUsersFromProject(id);
+
+            // Add updated users
+            if (dto.UserIds != null && dto.UserIds.Count > 0)
+            {
+                foreach (var userId in dto.UserIds.Distinct())
+                {
+                    await _repo.AddUserToProject(userId, id);
+                }
+            }
+
+            // Save project changes
+            var updatedProject = await _repo.UpdateProject(project);
+
+            return updatedProject;
+        }
+
 
         public Task<Project?> GetProject(int id)
         {
@@ -37,19 +104,7 @@ namespace Project___Task_Management_Backend.Services
             return _repo.GetAllProjects();
         }
 
-        public async Task<Project?> UpdateProject(int id, UpdateProjectDto dto)
-        {
-            var project = new Project
-            {
-                projectId = id,
-                projectName = dto.projectName,
-                projectDescription = dto.projectDescription,
-                projectStartDate = dto.projectStartDate,
-                projectEndDate = dto.projectEndDate
-            };
-
-            return await _repo.UpdateProject(project);
-        }
+       
 
         public Task<bool> DeleteProject(int id)
         {

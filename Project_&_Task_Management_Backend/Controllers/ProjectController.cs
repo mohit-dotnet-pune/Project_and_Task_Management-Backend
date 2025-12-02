@@ -10,7 +10,7 @@ namespace Project___Task_Management_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Manager")]
+    //[Authorize(Roles = "Manager")]
     public class ProjectController : ControllerBase
     {
         private readonly IProjectService _service;
@@ -23,9 +23,22 @@ namespace Project___Task_Management_Backend.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDto dto)
         {
-            var result = await _service.CreateProject(dto);
-            return Ok(result);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _service.CreateProjectAsync(dto);
+
+            if (!result.IsSuccess)
+                return BadRequest(new { success = false, message = result.Message });
+
+            return Ok(new
+            {
+                success = true,
+                message = result.Message,
+                project = result.Data
+            });
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProject(int id)
