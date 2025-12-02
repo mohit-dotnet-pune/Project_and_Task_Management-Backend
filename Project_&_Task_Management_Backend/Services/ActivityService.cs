@@ -55,7 +55,8 @@ namespace Project___Task_Management_Backend.Services
                 activityDescription = a.activityDescription,
                 activityEntityType = a.activityEntityType,
                 activityEntityId = a.activityEntityId,
-                activityCreatedAt = a.activityCreatedAt
+                activityCreatedAt = a.activityCreatedAt,
+                projectId = a.projectId
             });
         }
        public async Task<IEnumerable<ActivityResponseDto>> GetAllActivities()
@@ -85,7 +86,8 @@ namespace Project___Task_Management_Backend.Services
                 activityDescription = a.activityDescription,
                 activityEntityType = a.activityEntityType,
                 activityEntityId = a.activityEntityId,
-                activityCreatedAt = a.activityCreatedAt
+                activityCreatedAt = a.activityCreatedAt,
+                projectId  = a.projectId
             });
         }
 
