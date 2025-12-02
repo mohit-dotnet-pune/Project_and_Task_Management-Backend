@@ -33,7 +33,9 @@ namespace Project___Task_Management_Backend.Repository
 
         public List<ProjectTask> GetAll()
         {
-            return _context.tasks.ToList();
+            return _context.tasks
+                .Include(c => c.comments)
+                .ToList();
         }
 
 

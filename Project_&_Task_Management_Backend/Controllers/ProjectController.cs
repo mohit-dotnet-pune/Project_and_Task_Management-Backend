@@ -2,8 +2,11 @@
 using global::Project___Task_Management_Backend.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Project___Task_Management_Backend.Data;
 using Project___Task_Management_Backend.DTO;
 using Project___Task_Management_Backend.DTO.ActivityDtos;
+using Project___Task_Management_Backend.Models;
+using Project___Task_Management_Backend.DTO.CloudinaryDtos;
 using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Services;
 
@@ -40,29 +43,29 @@ namespace Project___Task_Management_Backend.Controllers
         // Create Project
         // ------------------------------------------------------
         [HttpPost]
-        public async Task<IActionResult> CreateProject([FromBody] CreateProjectDto dto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateProject([FromForm] CreateProjectDto dto)
+
         {
-            var userId = GetUserId();
+            //uploading file to cloudinary
 
-            var result = await _service.CreateProject(dto);
-            Console.WriteLine("project ID" + result.projectId);
 
-            await _activityService.LogAsync(new CreateActivityDto
+
+            //creating project
+            var result = await _service.CreateProjectAsync(dto);
+
+            if (!result.IsSuccess)
+                return BadRequest(new { success = false, message = result.Message });
+
+            return Ok(new
             {
-                userId = userId,
-                projectId = result.projectId,
-                activityDescription = "Project created",
-                activityEntityType = EntityType.Project,
-                activityEntityId = result.projectId
+                success = true,
+                message = result.Message,
+                project = result.Data
             });
-
-            return Ok(result);
         }
 
 
-        // ------------------------------------------------------
-        // Get Project
-        // ------------------------------------------------------
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProject(int id)
         {

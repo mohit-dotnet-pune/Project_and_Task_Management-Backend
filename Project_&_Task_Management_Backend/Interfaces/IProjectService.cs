@@ -5,7 +5,7 @@ namespace Project___Task_Management_Backend.Interfaces
 {
     public interface IProjectService
     {
-        Task<Project> CreateProject(CreateProjectDto dto);
+        Task<(bool IsSuccess, string Message, Project? Data)> CreateProjectAsync(CreateProjectDto dto);
         Task<Project?> GetProject(int id);
         Task<List<Project>> GetAllProjects();
         Task<Project?> UpdateProject(int id, UpdateProjectDto dto);

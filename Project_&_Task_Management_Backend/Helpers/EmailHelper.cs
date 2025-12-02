@@ -32,7 +32,7 @@ namespace Project___Task_Management_Backend.Helpers
             {
                 var mail = new MailMessage
                 {
-                    From = new MailAddress(_fromEmail, "Project & Task Management"),
+                    From = new MailAddress(_fromEmail, "Skedulo"),
                     Subject = subject,
                     Body = message,
                     IsBodyHtml = true

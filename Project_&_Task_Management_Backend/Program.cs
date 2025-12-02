@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Project___Task_Management_Backend.Data;
@@ -10,7 +12,6 @@ using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Repository;
 using Project___Task_Management_Backend.Services;
 using System.Text;
-using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -98,6 +99,11 @@ builder.Services.AddScoped<CloudinaryService>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<NotificationService>();
 
+builder.Services.Configure<FormOptions>(opt =>
+{
+    opt.MultipartBodyLengthLimit = long.MaxValue;
+});
+
 
 builder.Services.AddCors(options =>
 {
@@ -124,7 +130,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();     // FIXED: Authentication MUST come before Authorization
-app.UseMiddleware<JwtVerificationMiddleware>();
+//app.UseMiddleware<JwtVerificationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

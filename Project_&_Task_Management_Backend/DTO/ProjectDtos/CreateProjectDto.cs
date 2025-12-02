@@ -12,5 +12,8 @@ namespace Project___Task_Management_Backend.DTO.ProjectDtos
         public DateTime projectStartDate { get; set; }
         [Required]
         public DateTime projectEndDate { get; set; }
+
+        public List<int>? UserIds { get; set; }
+        public IFormFile? formFile { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Crypto;
 using Project___Task_Management_Backend.Data;
+using Project___Task_Management_Backend.DTO.CloudinaryDtos;
 using Project___Task_Management_Backend.DTO.CommentDtos;
 using Project___Task_Management_Backend.Interfaces;
 using Project___Task_Management_Backend.Models;
@@ -11,11 +12,14 @@ namespace Project___Task_Management_Backend.Services
     {
         private readonly ICommentRepository _commentRepo;
         private readonly AppDbContext _appDbContext;
+        private readonly CloudinaryService _cloudinaryService;
+        
 
-        public CommentService(ICommentRepository commentRepo, AppDbContext app)
+        public CommentService(ICommentRepository commentRepo, AppDbContext app,CloudinaryService cloudinaryService)
         {
             _appDbContext = app;
             _commentRepo = commentRepo;
+            _cloudinaryService = cloudinaryService;
         }
 
         //------------------ CREATE ------------------
@@ -26,6 +30,22 @@ namespace Project___Task_Management_Backend.Services
             comment.taskId = dto.taskId;
             comment.userId = dto.userId;
 
+
+            if (dto.commentFileForm != null)
+            {
+                UploadResponse uploadResponse = await _cloudinaryService.UploadFileAsync(dto.commentFileForm);
+                
+                var file = new Doc
+                {
+                    fileName = uploadResponse.FileName,
+                    fileURL = uploadResponse.FileUrl
+                };
+
+                _appDbContext.docs.Add(file);
+                await _appDbContext.SaveChangesAsync();
+                comment.fileId = file.fileId;
+                comment.file = file;
+            }
             _appDbContext.comments.Add(comment);
 
             await _appDbContext.SaveChangesAsync();
@@ -61,13 +81,24 @@ namespace Project___Task_Management_Backend.Services
             var comment = await _appDbContext.comments.FindAsync(commentId);
             if (comment == null) return null;
 
+
             if (dto.commentMessage != null)
                 comment.commentMessage = dto.commentMessage;
 
-            if (dto.fileId.HasValue)
+            if (dto.commentFileForm != null)
             {
-                comment.fileId = dto.fileId;
-                comment.file = await _appDbContext.docs.FindAsync(dto.fileId);
+                UploadResponse uploadResponse = await _cloudinaryService.UploadFileAsync(dto.commentFileForm);
+
+                var file = new Doc
+                {
+                    fileName = uploadResponse.FileName,
+                    fileURL = uploadResponse.FileUrl
+                };
+
+                _appDbContext.docs.Add(file);
+                await _appDbContext.SaveChangesAsync();
+                comment.fileId = file.fileId;
+                comment.file = file;
             }
 
             await _appDbContext.SaveChangesAsync();

@@ -17,5 +17,7 @@ namespace Project___Task_Management_Backend.DTO.ProjectTaskDtos
         public Status taskStatus { get; set; }
         [Required]
         public DateTime taskDueDate { get; set; }
+        public IFormFile? fileForm { get; set; }
+        public int? userId { get; set; }
     }
 }
