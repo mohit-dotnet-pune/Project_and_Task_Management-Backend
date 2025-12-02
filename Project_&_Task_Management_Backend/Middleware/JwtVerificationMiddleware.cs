@@ -12,7 +12,7 @@
         public async Task InvokeAsync(HttpContext context)
         {
             var path = context.Request.Path.Value?.ToLower();
-
+            Console.WriteLine(context.ToString());
             // Allow public routes
             if (path.StartsWith("/api/auth"))
             {
@@ -42,6 +42,7 @@
                 }
             }
 
+            Console.WriteLine("came at the end after all validation");
             await _next(context);
         }
     }

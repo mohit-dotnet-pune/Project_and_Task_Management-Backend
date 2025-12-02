@@ -144,7 +144,7 @@ namespace Project___Task_Management_Backend.Controllers
         {
             var tasks = await _service.GetTasksForProjectAsync(projectId);
             if (tasks == null || tasks.Count == 0)
-                return NotFound($"No tasks found for project {projectId}");
+                return NotFound($"No tasks found for project {projectId}"); 
 
             return Ok(tasks);
         }

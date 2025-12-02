@@ -10,7 +10,7 @@ namespace Project___Task_Management_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "Manager")]
+    [Authorize(Roles = "Manager")]
     public class ProjectController : ControllerBase
     {
         private readonly IProjectService _service;
