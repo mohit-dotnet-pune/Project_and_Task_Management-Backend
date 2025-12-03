@@ -38,6 +38,7 @@ namespace Project___Task_Management_Backend.Repository
             return await _db.projects
                 .Include(p => p.tasks)    // return tasks with list also
                 .Include(p => p.file)
+                .Include(p => p.userProjects)
                 .ToListAsync();
         }
 

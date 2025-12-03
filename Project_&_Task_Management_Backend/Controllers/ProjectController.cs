@@ -181,12 +181,12 @@ namespace Project___Task_Management_Backend.Controllers
         // Detach File
         // ------------------------------------------------------
         [HttpPut("{projectId}/detach-file/{fileId}")]
-        public async Task<IActionResult> DettachFileToProject(int projectId, int fileId)
+        public async Task<ActionResult> DettachFileToProject(int projectId, int fileId)
         {
             var userId = GetUserId();
 
             var result = await _service.DettachFileToProjectAsync(projectId, fileId);
-
+            
             if (!result.IsSuccess)
                 return BadRequest(result);
 
