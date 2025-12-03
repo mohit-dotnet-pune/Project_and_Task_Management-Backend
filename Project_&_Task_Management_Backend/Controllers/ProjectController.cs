@@ -2,11 +2,13 @@
 using global::Project___Task_Management_Backend.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Project___Task_Management_Backend.Data;
 using Project___Task_Management_Backend.DTO;
 using Project___Task_Management_Backend.DTO.ActivityDtos;
-using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.DTO.CloudinaryDtos;
+using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Models;
 using Project___Task_Management_Backend.Services;
 
@@ -19,11 +21,13 @@ namespace Project___Task_Management_Backend.Controllers
     {
         private readonly IProjectService _service;
         private readonly ActivityService _activityService;
+        private readonly AppDbContext _appDbContext;
 
-        public ProjectController(IProjectService service, ActivityService activityService)
+        public ProjectController(IProjectService service, ActivityService activityService, AppDbContext appDbContext    )
         {
             _service = service;
             _activityService = activityService;
+            _appDbContext = appDbContext;
         }
         //fetch user Id from middleware
         private int GetUserId()
@@ -248,6 +252,30 @@ namespace Project___Task_Management_Backend.Controllers
             });
 
             return Ok(result);
+        }
+
+        // project/userId/GetAllProjects
+
+        [HttpGet("project/{userId}/GetAllProjects")]
+        public IActionResult GetAllProjectByUserId(int userId)
+        {
+            var projects = _appDbContext.projects
+                .Where(p => p.userProjects.Any(up => up.userId == userId))
+                .ToList();
+
+            return Ok(projects);
+        }
+
+        [HttpGet("project/{projectId}/GetAllUsers")]
+        public IActionResult GetAllUsersByProjectId(int projectId)
+        {
+            var users = _appDbContext.userProjects
+                .Where(up => up.projectId == projectId)
+                .Include(up => up.user)
+                .Select(up => up.user)
+                .ToList();
+
+            return Ok(users);
         }
 
     }
