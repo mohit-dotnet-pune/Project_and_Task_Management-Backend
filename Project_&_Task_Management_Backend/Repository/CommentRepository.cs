@@ -29,6 +29,7 @@ namespace Project___Task_Management_Backend.Repository
                 .Where(c => c.userId == userId)
                 .Include(c => c.task)
                 .Include(c => c.file)
+                .Include(c => c.user)
                 .ToListAsync();
         }
     }

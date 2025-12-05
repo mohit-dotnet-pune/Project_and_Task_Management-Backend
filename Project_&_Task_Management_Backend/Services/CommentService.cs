@@ -25,16 +25,18 @@ namespace Project___Task_Management_Backend.Services
         //------------------ CREATE ------------------
         public async Task<Comment?> CreateComment(CreateCommentDto dto)
         {
-            var comment = new Comment();
-            comment.commentMessage = dto.commentMessage;
-            comment.taskId = dto.taskId;
-            comment.userId = dto.userId;
+            var comment = new Comment
+            {
+                commentMessage = dto.commentMessage,
+                taskId = dto.taskId,
+                userId = dto.userId
+            };
 
-
+            // Handle file upload
             if (dto.commentFileForm != null)
             {
                 UploadResponse uploadResponse = await _cloudinaryService.UploadFileAsync(dto.commentFileForm);
-                
+
                 var file = new Doc
                 {
                     fileName = uploadResponse.FileName,
@@ -43,14 +45,16 @@ namespace Project___Task_Management_Backend.Services
 
                 _appDbContext.docs.Add(file);
                 await _appDbContext.SaveChangesAsync();
-                comment.fileId = file.fileId;
-                comment.file = file;
-            }
-            _appDbContext.comments.Add(comment);
 
+                comment.fileId = file.fileId;
+            }
+
+            _appDbContext.comments.Add(comment);
             await _appDbContext.SaveChangesAsync();
+
             return comment;
         }
+
 
         //------------------ READ ------------------
         public async Task<Comment?> GetComment(int commentId)
@@ -61,7 +65,7 @@ namespace Project___Task_Management_Backend.Services
 
         public async Task<IEnumerable<Comment>> GetComments()
         {
-            return  await _appDbContext.comments.ToListAsync();
+            return await _appDbContext.comments.Include(c => c.file).ToListAsync();
         }
 
         //------------------ DELETE ------------------

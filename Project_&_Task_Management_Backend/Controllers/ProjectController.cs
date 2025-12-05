@@ -261,6 +261,7 @@ namespace Project___Task_Management_Backend.Controllers
         {
             var projects = _appDbContext.projects
                 .Where(p => p.userProjects.Any(up => up.userId == userId))
+                .Include(p => p.tasks)
                 .ToList();
 
             return Ok(projects);

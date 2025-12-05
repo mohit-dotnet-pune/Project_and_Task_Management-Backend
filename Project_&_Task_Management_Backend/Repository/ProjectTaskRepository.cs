@@ -21,9 +21,12 @@ namespace Project___Task_Management_Backend.Repository
                 .Include(t => t.project)
                 .Include(t => t.file)
                 .Include(t => t.comments)
-                    .ThenInclude(c => c.file)   // 🔥 Include File inside each Comment
+                    .ThenInclude(c => c.user)   // ✔ get user of each comment
+                .Include(t => t.comments)
+                    .ThenInclude(c => c.file)   // ✔ get file of each comment
                 .FirstOrDefaultAsync(t => t.taskId == taskId);
         }
+
 
 
         public async Task AddCommentAsync(Comment comment)

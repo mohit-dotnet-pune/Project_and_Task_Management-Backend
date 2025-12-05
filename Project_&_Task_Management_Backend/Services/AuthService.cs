@@ -237,7 +237,7 @@ namespace Project___Task_Management_Backend.Services
             var key = Environment.GetEnvironmentVariable("JWT_KEY");
             var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
             var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-            var minutes = int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIRY_MINUTES") ?? "60");
+            var minutes = int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIRY_MINUTES") ?? "6000");
 
             if (string.IsNullOrEmpty(key))
                 throw new Exception("JWT Key is missing. Check your .env file.");
