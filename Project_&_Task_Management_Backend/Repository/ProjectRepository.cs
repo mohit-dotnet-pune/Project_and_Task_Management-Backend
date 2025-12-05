@@ -30,6 +30,8 @@ namespace Project___Task_Management_Backend.Repository
             return await _db.projects
                 .Include(p => p.tasks)
                 .Include(p => p.file) // 🟢 return tasks also
+                .Include(p => p.userProjects)
+                    .ThenInclude(up => up.user)
                 .FirstOrDefaultAsync(p => p.projectId == id);
         }
 
