@@ -62,6 +62,11 @@ var CloudName = Environment.GetEnvironmentVariable("CloudName");
 var ApiKey = Environment.GetEnvironmentVariable("ApiKey");
 var ApiSecret = Environment.GetEnvironmentVariable("ApiSecret");
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "5000"));
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 .AddJwtBearer(options =>
@@ -120,6 +125,11 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 app.MapHub<NotificationHub>("/notifications");
 app.UseCors("AllowFrontend");   // ? MUST BE HERE before MapHub + MapControllers
+
+app.UseCors(x => x
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 
 // MIDDLEWARE
 if (app.Environment.IsDevelopment())

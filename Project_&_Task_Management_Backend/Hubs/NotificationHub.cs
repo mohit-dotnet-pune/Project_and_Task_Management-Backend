@@ -18,6 +18,17 @@ namespace Project___Task_Management_Backend.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
         }
 
+        public override async Task OnConnectedAsync()
+        {
+            var httpContext = Context.GetHttpContext();
+            var userId = httpContext?.Request.Query["userId"].ToString();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, GetUserGroup(userId));
+            }
+            await base.OnConnectedAsync();
+        }
+
         private string GetUserGroup(string userId) => $"user-{userId}";
     }
 }
